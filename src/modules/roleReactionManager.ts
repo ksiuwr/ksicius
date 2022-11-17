@@ -44,5 +44,7 @@ export async function createManageRoleMessage(
 
   const msg = await textChannel.send({ embeds: [embed] });
   if (msg === null) return;
+
+  config.ROLES_MESSAGE_ID = msg.id;
   await addReactions(msg);
 }
