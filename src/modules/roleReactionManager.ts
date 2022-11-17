@@ -1,12 +1,12 @@
 import {
   Client,
   Message,
-  Snowflake,
   TextChannel,
   EmbedBuilder,
-  roleMention
+  roleMention,
+  Events
 } from 'discord.js';
-import { ROLES_MAP } from '../config';
+import { ROLES_MAP, ROLES_CHANNEL_ID } from '../config';
 
 async function addReactions(message: Message) {
   if (message === null) return;
@@ -15,11 +15,28 @@ async function addReactions(message: Message) {
   }
 }
 
-export async function createManageRoleMessage(
-  client: Client,
-  channelId: Snowflake
-): Promise<void> {
-  const channel = await client.channels.fetch(channelId);
+export function addReactionListeners(client: Client) {
+  client.on(Events.MessageReactionAdd, async (reaction, user) => {
+    reaction = await reaction.fetch();
+    if (reaction.emoji.name === null) return;
+
+    const message = await reaction.message.fetch();
+    if (message.channelId != ROLES_CHANNEL_ID || message.guild === null) return;
+
+    const roleId = ROLES_MAP.get(reaction.emoji.name);
+    if (roleId === undefined) return;
+
+    const guild = await message.guild.fetch();
+    const role = (await guild.roles.fetch()).get(roleId);
+    if (role === undefined) return;
+
+    user = await user.fetch();
+    guild.members.addRole({ role: role, user: user.id });
+  });
+}
+
+export async function createManageRoleMessage(client: Client): Promise<void> {
+  const channel = await client.channels.fetch(ROLES_CHANNEL_ID);
   if (channel === null || !channel.isTextBased()) return;
   const textChannel = channel as TextChannel;
 
