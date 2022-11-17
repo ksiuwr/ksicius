@@ -1,33 +1,25 @@
 import {
   Client,
-  EmojiIdentifierResolvable,
   Message,
   Snowflake,
   TextChannel,
   EmbedBuilder,
   roleMention
 } from 'discord.js';
-
-const rolesMap = new Map<
-  Snowflake,
-  Map<EmojiIdentifierResolvable, Snowflake>
->();
-const messageIds = new Set<Snowflake>();
+import config from '../config';
 
 async function addReactions(message: Message) {
   if (message === null) return;
-  const messageRoles = rolesMap.get(message.id);
-  if (messageRoles === undefined) return;
-  for (const key of messageRoles.keys()) {
+  for (const key of config.ROLES_MAP.keys()) {
     await message.react(key);
   }
 }
 
 export async function createManageRoleMessage(
   client: Client,
-  channelId: Snowflake,
-  roles: Map<EmojiIdentifierResolvable, Snowflake>
+  channelId: Snowflake
 ): Promise<void> {
+  const roles = config.ROLES_MAP;
   const channel = await client.channels.fetch(channelId);
   if (channel === null || !channel.isTextBased()) return;
   const textChannel = channel as TextChannel;
@@ -52,9 +44,5 @@ export async function createManageRoleMessage(
 
   const msg = await textChannel.send({ embeds: [embed] });
   if (msg === null) return;
-
-  rolesMap.set(msg.id, roles);
   await addReactions(msg);
-
-  messageIds.add(msg.id);
 }
