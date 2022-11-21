@@ -1,6 +1,12 @@
-import { Client, Events, GatewayIntentBits, Partials } from 'discord.js';
+import {
+  Client,
+  Events,
+  GatewayIntentBits,
+  Partials,
+  TextChannel
+} from 'discord.js';
 import { createManageRoleMessage } from './modules/roleReactionManager';
-import { IS_ROLES_MESSAGE_PRINTED, ROLES_CHANNEL_ID } from './config';
+import { ROLES_CHANNEL_ID, WELCOME_MESSAGE } from './config';
 const token = process.env.TOKEN;
 
 const client = new Client({
@@ -14,9 +20,11 @@ const client = new Client({
   partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 
-client.once(Events.ClientReady, () => {
+client.once(Events.ClientReady, async () => {
   console.log('Ready');
-  if (!IS_ROLES_MESSAGE_PRINTED) {
+  const roleChannel = await client.channels.fetch(ROLES_CHANNEL_ID);
+  const textChannel = roleChannel as TextChannel;
+  if (!textChannel.lastMessageId) {
     createManageRoleMessage(client, ROLES_CHANNEL_ID);
   }
 });
@@ -25,4 +33,8 @@ client.login(token);
 
 client.on(Events.MessageReactionAdd, (messageReaction, user) => {
   if (user.bot) return;
+});
+
+client.on(Events.GuildMemberAdd, user => {
+  user.send(WELCOME_MESSAGE);
 });
