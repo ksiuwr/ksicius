@@ -5,3 +5,5 @@ export const ROLES_MAP = new Map<EmojiIdentifierResolvable, Snowflake>([
 ]);
 export const ROLES_CHANNEL_ID = '1042922876686307348';
 export const IS_ROLES_MESSAGE_PRINTED = false;
+
+export const AUTOROLE_ID = '';

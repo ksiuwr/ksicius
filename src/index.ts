@@ -1,6 +1,14 @@
-import { Client, Events, GatewayIntentBits, Partials } from 'discord.js';
+import {
+  Client,
+  Events,
+  GatewayIntentBits,
+  IntentsBitField,
+  MembershipScreeningFieldType,
+  Partials
+} from 'discord.js';
 import { createManageRoleMessage } from './modules/roleReactionManager';
 import { IS_ROLES_MESSAGE_PRINTED, ROLES_CHANNEL_ID } from './config';
+import { setupAutorole } from './modules/joinAutorole';
 const token = process.env.TOKEN;
 
 const client = new Client({
@@ -26,3 +34,5 @@ client.login(token);
 client.on(Events.MessageReactionAdd, (messageReaction, user) => {
   if (user.bot) return;
 });
+
+setupAutorole(client);
