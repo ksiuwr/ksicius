@@ -6,7 +6,7 @@ import {
   TextChannel
 } from 'discord.js';
 import { createManageRoleMessage, addReactionListeners } from './modules/roleReactionManager';
-import { ROLES_CHANNEL_ID, WELCOME_MESSAGE } from './config';
+import { ROLES_CHANNEL_ID, WELCOME_MESSAGE, AUTOROLE_ID } from './config';
 
 const token = process.env.TOKEN;
 
@@ -37,6 +37,12 @@ addReactionListeners(client);
 
 client.on(Events.MessageReactionAdd, (messageReaction, user) => {
   if (user.bot) return;
+});
+
+client.on(Events.GuildMemberAdd, async member => {
+  const role = await member.guild.roles.fetch(AUTOROLE_ID);
+  if (role === null) return;
+  member.roles.add(role);
 });
 
 client.on(Events.GuildMemberAdd, user => {
