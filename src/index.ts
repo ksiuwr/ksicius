@@ -5,7 +5,7 @@ import {
   Partials,
   TextChannel
 } from 'discord.js';
-import { createManageRoleMessage } from './modules/roleReactionManager';
+import { createManageRoleMessage, addReactionListeners } from './modules/roleReactionManager';
 import { ROLES_CHANNEL_ID, WELCOME_MESSAGE, AUTOROLE_ID } from './config';
 
 const token = process.env.TOKEN;
@@ -14,6 +14,7 @@ const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessageReactions
@@ -31,6 +32,8 @@ client.once(Events.ClientReady, async () => {
 });
 
 client.login(token);
+
+addReactionListeners(client);
 
 client.on(Events.MessageReactionAdd, (messageReaction, user) => {
   if (user.bot) return;
