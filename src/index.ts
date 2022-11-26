@@ -5,7 +5,10 @@ import {
   Partials,
   TextChannel
 } from 'discord.js';
-import { createManageRoleMessage } from './modules/roleReactionManager';
+import {
+  createManageRoleMessage,
+  addReactionListeners
+} from './modules/roleReactionManager';
 import { ROLES_CHANNEL_ID, WELCOME_MESSAGE, AUTOROLE_ID } from './config';
 // import { Config } from './models/config';
 import mongoose from 'mongoose';
@@ -17,6 +20,7 @@ const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessageReactions
@@ -29,6 +33,8 @@ await mongoose.connect(mongoLink as string);
 // console.log(await Config.find());
 
 client.login(token);
+
+addReactionListeners(client);
 
 client.once(Events.ClientReady, async () => {
   console.log('Ready');
