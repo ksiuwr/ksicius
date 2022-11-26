@@ -4,21 +4,24 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start": "node --loader ts-node/esm src/index.ts",
+    "lint": "eslint src",
+    "build": "tsc --project tsconfig.json"
   },
   "dependencies": {
-    "@typescript-eslint/parser": "^5.43.0",
-    "discord.js": "^14.6.0"
+    "discord.js": "^14.6.0",
+    "mongoose": "^6.7.3"
   },
+  "type": "module",
   "devDependencies": {
     "@types/node": "^16.11.3",
-    "@typescript-eslint/eslint-plugin": "^5.42.1",
-    "eslint": "^8.27.0",
-    "eslint-config-strict-mode": "^1.2.1",
+    "@typescript-eslint/eslint-plugin": "^5.44.0",
+    "@typescript-eslint/parser": "^5.44.0",
+    "eslint": "^8.28.0",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.7.1",
-    "ts-node": "^10.4.0",
-    "typescript": "^4.4.4"
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.3"
   },
   "engines": {
     "node": ">=16.6.0",

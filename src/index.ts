@@ -7,8 +7,11 @@ import {
 } from 'discord.js';
 import { createManageRoleMessage } from './modules/roleReactionManager';
 import { ROLES_CHANNEL_ID, WELCOME_MESSAGE, AUTOROLE_ID } from './config';
+// import { Config } from './models/config';
+import mongoose from 'mongoose';
 
 const token = process.env.TOKEN;
+const mongoLink = process.env.MONGO_CONNECTION_LINK;
 
 const client = new Client({
   intents: [
@@ -21,6 +24,12 @@ const client = new Client({
   partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 
+await mongoose.connect(mongoLink as string);
+// await Config.create({ WELCOME_MESSAGE: 'abc' });
+// console.log(await Config.find());
+
+client.login(token);
+
 client.once(Events.ClientReady, async () => {
   console.log('Ready');
   const roleChannel = await client.channels.fetch(ROLES_CHANNEL_ID);
@@ -30,10 +39,9 @@ client.once(Events.ClientReady, async () => {
   }
 });
 
-client.login(token);
-
 client.on(Events.MessageReactionAdd, (messageReaction, user) => {
   if (user.bot) return;
+  if (!messageReaction) return;
 });
 
 client.on(Events.GuildMemberAdd, async member => {
