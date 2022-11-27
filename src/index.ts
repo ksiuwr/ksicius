@@ -3,18 +3,25 @@ import {
   Events,
   GatewayIntentBits,
   Partials,
-  TextChannel
+  TextChannel,
+  REST,
+  Routes
 } from 'discord.js';
 import {
   createManageRoleMessage,
   addReactionListeners
 } from './modules/roleReactionManager';
-import { ROLES_CHANNEL_ID, WELCOME_MESSAGE, AUTOROLE_ID } from './config';
-// import { Config } from './models/config';
+import {
+  ROLES_CHANNEL_ID,
+  AUTOROLE_ID,
+  TOKEN,
+  MONGO_LINK,
+  CLIENT_ID,
+  GUILD_ID
+} from './config';
+import COMMANDS from './commands';
+import { ConfigModel } from './models/config';
 import mongoose from 'mongoose';
-
-const token = process.env.TOKEN;
-const mongoLink = process.env.MONGO_CONNECTION_LINK;
 
 const client = new Client({
   intents: [
@@ -28,11 +35,15 @@ const client = new Client({
   partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 
-await mongoose.connect(mongoLink as string);
+await mongoose.connect(MONGO_LINK);
 // await Config.create({ WELCOME_MESSAGE: 'abc' });
 // console.log(await Config.find());
 
-client.login(token);
+const rest = new REST({ version: '10' }).setToken(TOKEN);
+await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
+  body: COMMANDS.map(command => command.toJSON())
+});
+client.login(TOKEN);
 
 addReactionListeners(client);
 
@@ -51,11 +62,38 @@ client.on(Events.MessageReactionAdd, (messageReaction, user) => {
 });
 
 client.on(Events.GuildMemberAdd, async member => {
+  const config = await ConfigModel.findOne();
+  if (config) {
+    member.send(config.WELCOME_MESSAGE as string);
+  } else {
+    member.send(
+      'Brak połączenia z bazą danych, przykro nam :(. Opisz błąd na kanale bota'
+    );
+  }
+
   const role = await member.guild.roles.fetch(AUTOROLE_ID);
   if (role === null) return;
   member.roles.add(role);
 });
 
-client.on(Events.GuildMemberAdd, user => {
-  user.send(WELCOME_MESSAGE);
+client.on(Events.InteractionCreate, async interaction => {
+  if (interaction.isChatInputCommand()) {
+    switch (interaction.commandName) {
+      case 'edit_welcome_message': {
+        // dodac wstawianie zmiennych srodowiskowych
+        const parsedMessage = (
+          interaction.options.data[0].value as string
+        ).replaceAll('\\n', '\n');
+        await ConfigModel.findOneAndUpdate(
+          {},
+          {
+            WELCOME_MESSAGE: parsedMessage
+          }
+        );
+        interaction.reply({
+          content: `New welcome message: \n${parsedMessage}`
+        });
+      }
+    }
+  }
 });

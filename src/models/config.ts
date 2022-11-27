@@ -4,4 +4,4 @@ const configSchema = new Schema({
   WELCOME_MESSAGE: String
 });
 
-export const Config = mongoose.model('Config', configSchema);
+export const ConfigModel = mongoose.model('Config', configSchema);
