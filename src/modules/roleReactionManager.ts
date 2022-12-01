@@ -5,15 +5,32 @@ import {
   EmbedBuilder,
   roleMention,
   APIEmbedField,
-  Snowflake
+  Snowflake,
+  MessageReaction,
+  PartialMessageReaction
 } from 'discord.js';
-import { ROLES_MAP } from '../config';
+import { ROLES_CHANNEL_ID, ROLES_MAP } from '../config';
 
 const addReactions = async (message: Message) => {
   if (message === null) return;
   for (const key of ROLES_MAP.keys()) {
     await message.react(key);
   }
+};
+
+export const getRoleIdFromReaction = async (
+  messageReaction: MessageReaction | PartialMessageReaction
+): Promise<Snowflake | null> => {
+  if (!messageReaction) return null;
+  messageReaction = await messageReaction.fetch();
+  if (messageReaction.emoji.name === null) return null;
+
+  const message = await messageReaction.message.fetch();
+  if (message.channelId != ROLES_CHANNEL_ID || message.guild === null)
+    return null;
+
+  const roleId = ROLES_MAP.get(messageReaction.emoji.name);
+  return roleId ?? null;
 };
 
 export const createManageRoleMessage = async (
