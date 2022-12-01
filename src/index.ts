@@ -7,17 +7,15 @@ import {
   REST,
   Routes
 } from 'discord.js';
-import {
-  createManageRoleMessage,
-  addReactionListeners
-} from './modules/roleReactionManager';
+import { createManageRoleMessage } from './modules/roleReactionManager';
 import {
   ROLES_CHANNEL_ID,
   AUTOROLE_ID,
   TOKEN,
   MONGO_LINK,
   CLIENT_ID,
-  GUILD_ID
+  GUILD_ID,
+  ROLES_MAP
 } from './config';
 import COMMANDS from './commands';
 import { ConfigModel } from './models/config';
@@ -45,20 +43,56 @@ await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
 });
 client.login(TOKEN);
 
-addReactionListeners(client);
-
 client.once(Events.ClientReady, async () => {
   console.log('Ready');
   const roleChannel = await client.channels.fetch(ROLES_CHANNEL_ID);
   const textChannel = roleChannel as TextChannel;
+  console.log(textChannel.lastMessage);
+  console.log(textChannel.lastMessageId);
   if (!textChannel.lastMessageId) {
     createManageRoleMessage(client, ROLES_CHANNEL_ID);
   }
 });
 
-client.on(Events.MessageReactionAdd, (messageReaction, user) => {
+client.on(Events.MessageReactionAdd, async (messageReaction, user) => {
   if (user.bot) return;
   if (!messageReaction) return;
+  messageReaction = await messageReaction.fetch();
+  if (messageReaction.emoji.name === null) return;
+
+  const message = await messageReaction.message.fetch();
+  if (message.channelId != ROLES_CHANNEL_ID || message.guild === null) return;
+
+  const roleId = ROLES_MAP.get(messageReaction.emoji.name);
+  if (roleId === undefined) return;
+
+  const guild = await message.guild.fetch();
+  const role = (await guild.roles.fetch()).get(roleId);
+  if (role === undefined) return;
+
+  user = await user.fetch();
+  guild.members.addRole({ role: role, user: user.id });
+});
+
+client.on(Events.MessageReactionRemove, async (messageReaction, user) => {
+  if (user.bot) return;
+  if (!messageReaction) return;
+  messageReaction = await messageReaction.fetch();
+
+  if (messageReaction.emoji.name === null) return;
+
+  const message = await messageReaction.message.fetch();
+  if (message.channelId != ROLES_CHANNEL_ID || message.guild === null) return;
+
+  const roleId = ROLES_MAP.get(messageReaction.emoji.name);
+  if (roleId === undefined) return;
+
+  const guild = await message.guild.fetch();
+  const role = (await guild.roles.fetch()).get(roleId);
+  if (role === undefined) return;
+
+  user = await user.fetch();
+  guild.members.removeRole({ role: role, user: user.id });
 });
 
 client.on(Events.GuildMemberAdd, async member => {
