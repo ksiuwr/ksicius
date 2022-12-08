@@ -5,19 +5,18 @@ import {
   Partials,
   TextChannel,
   REST,
-  Routes
+  Routes,
+  GuildMemberRoleManager
 } from 'discord.js';
-import {
-  createManageRoleMessage,
-  addReactionListeners
-} from './modules/roleReactionManager';
+import { createManageRoleMessage, addReactionListeners } from './modules/roleReactionManager';
 import {
   ROLES_CHANNEL_ID,
   AUTOROLE_ID,
   TOKEN,
   MONGO_LINK,
   CLIENT_ID,
-  GUILD_ID
+  GUILD_ID,
+  EDIT_ROLE_ID
 } from './config';
 import COMMANDS from './commands';
 import { ConfigModel } from './models/config';
@@ -66,9 +65,7 @@ client.on(Events.GuildMemberAdd, async member => {
   if (config) {
     member.send(config.WELCOME_MESSAGE as string);
   } else {
-    member.send(
-      'Brak połączenia z bazą danych, przykro nam :(. Opisz błąd na kanale bota'
-    );
+    member.send('Brak połączenia z bazą danych, przykro nam :(. Opisz błąd na kanale bota');
   }
 
   const role = await member.guild.roles.fetch(AUTOROLE_ID);
@@ -81,18 +78,31 @@ client.on(Events.InteractionCreate, async interaction => {
     switch (interaction.commandName) {
       case 'edit_welcome_message': {
         // dodac wstawianie zmiennych srodowiskowych
-        const parsedMessage = (
-          interaction.options.data[0].value as string
-        ).replaceAll('\\n', '\n');
-        await ConfigModel.findOneAndUpdate(
-          {},
-          {
-            WELCOME_MESSAGE: parsedMessage
+        if (interaction.member?.roles) {
+          const roleManager = interaction.member?.roles as GuildMemberRoleManager;
+          let isAllowedToEdit = false;
+          for (const role of roleManager.cache) {
+            const roleId = role[0];
+            if (roleId == EDIT_ROLE_ID) {
+              isAllowedToEdit = true;
+            }
           }
-        );
-        interaction.reply({
-          content: `New welcome message: \n${parsedMessage}`
-        });
+          if (isAllowedToEdit) {
+            const parsedMessage = (interaction.options.data[0].value as string).replaceAll(
+              '\\n',
+              '\n'
+            );
+            await ConfigModel.findOneAndUpdate(
+              {},
+              {
+                WELCOME_MESSAGE: parsedMessage
+              }
+            );
+            interaction.reply({
+              content: `New welcome message: \n${parsedMessage}`
+            });
+          }
+        }
       }
     }
   }
