@@ -5,10 +5,7 @@ const COMMANDS = [
     .setName('edit_welcome_message')
     .setDescription('Edit welcome message for new members')
     .addStringOption(option =>
-      option
-        .setName('new_message')
-        .setDescription('New message body')
-        .setRequired(true)
+      option.setName('new_message').setDescription('New message body').setRequired(true)
     )
 ];
 
