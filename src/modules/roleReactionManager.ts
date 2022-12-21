@@ -1,40 +1,46 @@
 import {
-  Client,
-  Message,
-  TextChannel,
-  EmbedBuilder,
-  roleMention,
-  Events,
   APIEmbedField,
-  Snowflake
+  Client,
+  EmbedBuilder,
+  Message,
+  MessageReaction,
+  PartialMessageReaction,
+  PartialUser,
+  Snowflake,
+  TextChannel,
+  User,
+  roleMention
 } from 'discord.js';
-import { ROLES_MAP, ROLES_CHANNEL_ID } from '../config';
 
-const addReactions = async (message: Message) => {
-  if (message === null) return;
-  for (const key of ROLES_MAP.keys()) {
-    await message.react(key);
+import { ROLES_CHANNEL_ID, ROLES_MAP } from '../config';
+
+export const setupRoleMessage = async (client: Client) => {
+  const roleChannel = await client.channels.fetch(ROLES_CHANNEL_ID);
+  const textChannel = roleChannel as TextChannel;
+  if (!textChannel.lastMessageId) {
+    createManageRoleMessage(client, ROLES_CHANNEL_ID);
   }
 };
 
-export const addReactionListeners = (client: Client) => {
-  client.on(Events.MessageReactionAdd, async (reaction, user) => {
-    reaction = await reaction.fetch();
-    if (reaction.emoji.name === null) return;
+export const addReactionListeners = async (
+  reaction: MessageReaction | PartialMessageReaction,
+  user: User | PartialUser
+) => {
+  reaction = await reaction.fetch();
+  if (reaction.emoji.name === null) return;
 
-    const message = await reaction.message.fetch();
-    if (message.channelId != ROLES_CHANNEL_ID || message.guild === null) return;
+  const message = await reaction.message.fetch();
+  if (message.channelId != ROLES_CHANNEL_ID || message.guild === null) return;
 
-    const roleId = ROLES_MAP.get(reaction.emoji.name);
-    if (roleId === undefined) return;
+  const roleId = ROLES_MAP.get(reaction.emoji.name);
+  if (roleId === undefined) return;
 
-    const guild = await message.guild.fetch();
-    const role = (await guild.roles.fetch()).get(roleId);
-    if (role === undefined) return;
+  const guild = await message.guild.fetch();
+  const role = (await guild.roles.fetch()).get(roleId);
+  if (role === undefined) return;
 
-    user = await user.fetch();
-    guild.members.addRole({ role: role, user: user.id });
-  });
+  user = await user.fetch();
+  guild.members.addRole({ role: role, user: user.id });
 };
 
 export const createManageRoleMessage = async (
@@ -72,4 +78,11 @@ export const createManageRoleMessage = async (
   if (msg === null) return;
 
   await addReactions(msg);
+};
+
+const addReactions = async (message: Message) => {
+  if (message === null) return;
+  for (const key of ROLES_MAP.keys()) {
+    await message.react(key);
+  }
 };

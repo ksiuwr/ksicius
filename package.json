@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node --loader ts-node/esm src/index.ts",
     "lint": "eslint src",
-    "build": "tsc --project tsconfig.json"
+    "build": "tsc --project tsconfig.json",
+    "docs": "typedoc --out docs --entryPointStrategy expand src"
   },
   "dependencies": {
     "discord.js": "^14.6.0",
@@ -14,6 +15,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/node": "^16.11.3",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
@@ -21,6 +23,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.7.1",
     "ts-node": "^10.9.1",
+    "typedoc": "^0.23.23",
     "typescript": "^4.9.3"
   },
   "engines": {
