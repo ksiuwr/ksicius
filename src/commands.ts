@@ -11,7 +11,7 @@ const COMMANDS = [
     .setName('add_new_role_and_reaction')
     .setDescription('Add new role with reaction to role panel')
     .addStringOption(option =>
-      option.setName('role_name').setDescription('New role name').setRequired(true)
+      option.setName('role_id').setDescription('New role ID').setRequired(true)
     )
     .addStringOption(option =>
       option.setName('reaction').setDescription('Reaction associated with role').setRequired(true)

@@ -3,7 +3,11 @@ import mongoose from 'mongoose';
 
 import COMMANDS from './commands';
 import { CLIENT_ID, GUILD_ID, MONGO_LINK, TOKEN } from './config';
-import { addReactionListeners, setupRoleMessage } from './modules/roleReactionManager';
+import {
+  addNewRoleWithReaction,
+  addReactionListeners,
+  setupRoleMessage
+} from './modules/roleReactionManager';
 import { setupAutorole } from './modules/setupAutorole';
 import { editWelcomeMessage, sendWelcomeMessage } from './modules/welcomeMessage';
 
@@ -49,6 +53,10 @@ client.on(Events.InteractionCreate, async interaction => {
     switch (interaction.commandName) {
       case 'edit_welcome_message':
         editWelcomeMessage(interaction);
+        break;
+      case 'add_new_role_and_reaction':
+        addNewRoleWithReaction(client, interaction);
+        break;
     }
   }
 });
