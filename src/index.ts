@@ -5,7 +5,8 @@ import COMMANDS from './commands';
 import { CLIENT_ID, GUILD_ID, MONGO_LINK, TOKEN } from './config';
 import {
   addNewRoleWithReaction,
-  addReactionListeners,
+  addRoleOnReactionAdded,
+  removeRoleOnReactionRemoved,
   setupRoleMessage
 } from './modules/roleReactionManager';
 import { setupAutorole } from './modules/setupAutorole';
@@ -31,34 +32,17 @@ await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
 });
 await client.login(TOKEN);
 
-
 client.on(Events.ClientReady, async () => {
   console.log('Ready');
   setupRoleMessage(client);
 });
 
 client.on(Events.MessageReactionAdd, async (messageReaction, user) => {
-  if (user.bot) return;
-  const roleId = await getRoleIdFromReaction(messageReaction);
-  if (roleId === null) return;
-  const guild = await messageReaction.message.guild?.fetch();
-  if (guild === undefined) return;
-  const role = (await guild.roles.fetch()).get(roleId);
-  if (role === undefined) return;
-  user = await user.fetch();
-  guild.members.addRole({ role: role, user: user.id });
+  addRoleOnReactionAdded(messageReaction, user);
 });
 
 client.on(Events.MessageReactionRemove, async (messageReaction, user) => {
-  if (user.bot) return;
-  const roleId = await getRoleIdFromReaction(messageReaction);
-  if (roleId === null) return;
-  const guild = await messageReaction.message.guild?.fetch();
-  if (guild === undefined) return;
-  const role = (await guild.roles.fetch()).get(roleId);
-  if (role === undefined) return;
-  user = await user.fetch();
-  guild.members.removeRole({ role: role, user: user.id });
+  removeRoleOnReactionRemoved(messageReaction, user);
 });
 
 client.on(Events.GuildMemberAdd, async member => {
