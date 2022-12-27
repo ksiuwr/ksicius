@@ -5,7 +5,8 @@ import COMMANDS from './commands';
 import { CLIENT_ID, GUILD_ID, MONGO_LINK, TOKEN } from './config';
 import {
   addNewRoleWithReaction,
-  addReactionListeners,
+  addRoleOnReactionAdded,
+  removeRoleOnReactionRemoved,
   setupRoleMessage
 } from './modules/roleReactionManager';
 import { setupAutorole } from './modules/setupAutorole';
@@ -36,11 +37,12 @@ client.on(Events.ClientReady, async () => {
   setupRoleMessage(client);
 });
 
-client.on(Events.MessageReactionAdd, (messageReaction, user) => {
-  addReactionListeners(messageReaction, user);
+client.on(Events.MessageReactionAdd, async (messageReaction, user) => {
+  addRoleOnReactionAdded(messageReaction, user);
+});
 
-  if (user.bot) return;
-  if (!messageReaction) return;
+client.on(Events.MessageReactionRemove, async (messageReaction, user) => {
+  removeRoleOnReactionRemoved(messageReaction, user);
 });
 
 client.on(Events.GuildMemberAdd, async member => {

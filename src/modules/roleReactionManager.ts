@@ -3,17 +3,19 @@ import {
   ChatInputCommandInteraction,
   Client,
   EmbedBuilder,
+  Guild,
   Message,
   MessageReaction,
   PartialMessageReaction,
   PartialUser,
+  Role,
   Snowflake,
   TextChannel,
   User,
   roleMention
 } from 'discord.js';
 
-import { EDIT_ROLE_ID, ROLES_CHANNEL_ID, ROLES_MAP } from '../config';
+import { EDIT_ROLE_ID, ROLES_CHANNEL_ID } from '../config';
 import { ConfigModel } from '../models/config';
 import isAbleToEdit from '../utils/isAbleToEdit';
 
@@ -95,27 +97,6 @@ export const setupRoleMessage = async (client: Client) => {
   }
 };
 
-export const addReactionListeners = async (
-  reaction: MessageReaction | PartialMessageReaction,
-  user: User | PartialUser
-) => {
-  reaction = await reaction.fetch();
-  if (reaction.emoji.name === null) return;
-
-  const message = await reaction.message.fetch();
-  if (message.channelId != ROLES_CHANNEL_ID || message.guild === null) return;
-
-  const roleId = ROLES_MAP.get(reaction.emoji.name);
-  if (roleId === undefined) return;
-
-  const guild = await message.guild.fetch();
-  const role = (await guild.roles.fetch()).get(roleId);
-  if (role === undefined) return;
-
-  user = await user.fetch();
-  guild.members.addRole({ role: role, user: user.id });
-};
-
 export const createManageRoleMessage = async (
   client: Client,
   channelId: Snowflake
@@ -175,4 +156,72 @@ const addReactions = async (message: Message) => {
   for (const key of config.ROLE_TO_REACTION.keys()) {
     await message.react(key);
   }
+};
+
+/** Function get guild, user id and role from message reaction
+ * Function:
+ * 1. Checks if user is not a bot
+ * 2. Loads roles map and roles message id from MongoDB
+ * 3. Checks if emoji is known and if message is roles message
+ * 4. Tries to get role id
+ * 5. Gets guild and role object
+ * 6. Returns data
+ * If any of these steps fails returns null
+ * @param messageReaction Message reaction object
+ * @param user User who added reaction
+ * @returns tuple with guild object, user id and role object or null on failure
+ */
+const getGuildUserIdAndRole = async (
+  messageReaction: MessageReaction | PartialMessageReaction,
+  user: User | PartialUser
+): Promise<[Guild, Snowflake, Role] | null> => {
+  if (user.bot) return null;
+
+  const config = await ConfigModel.findOne({});
+  if (!config || !config.ROLE_TO_REACTION || !config.ROLE_TO_REACTION_MESSAGE_ID) return null;
+
+  messageReaction = await messageReaction.fetch();
+  if (messageReaction.emoji.name === null) return null;
+  if (messageReaction.message.id !== config.ROLE_TO_REACTION_MESSAGE_ID) return null;
+
+  const roleId = config.ROLE_TO_REACTION.get(messageReaction.emoji.name);
+  if (roleId === undefined) return null;
+
+  const message = await messageReaction.message.fetch();
+  if (message.guild === null) return null;
+
+  const guild = await message.guild.fetch();
+  const role = (await guild.roles.fetch()).get(roleId);
+  if (role === undefined) return null;
+  user = await user.fetch();
+
+  return [guild, user.id, role];
+};
+
+/** Adds role from reaction added to roles message
+ * @param messageReaction Message reaction object
+ * @param user User who added reaction
+ */
+export const addRoleOnReactionAdded = async (
+  messageReaction: MessageReaction | PartialMessageReaction,
+  user: User | PartialUser
+) => {
+  const result = await getGuildUserIdAndRole(messageReaction, user);
+  if (result === null) return;
+  const [guild, userId, role] = result;
+  guild.members.addRole({ user: userId, role: role });
+};
+
+/** Removes role from reaction removed to roles message
+ * @param messageReaction Message reaction object
+ * @param user User who removed reaction
+ */
+export const removeRoleOnReactionRemoved = async (
+  messageReaction: MessageReaction | PartialMessageReaction,
+  user: User | PartialUser
+) => {
+  const result = await getGuildUserIdAndRole(messageReaction, user);
+  if (result === null) return;
+  const [guild, userId, role] = result;
+  guild.members.removeRole({ user: userId, role: role });
 };
