@@ -6,7 +6,8 @@ const configSchema = new Schema({
     type: Map,
     of: String
   },
-  ROLE_TO_REACTION_MESSAGE_ID: String
+  ROLE_TO_REACTION_MESSAGE_ID: String,
+  IS_AUTOROLE_ENABLED: Boolean
 });
 
 export const ConfigModel = mongoose.model('Config', configSchema);
