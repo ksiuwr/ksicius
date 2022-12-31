@@ -15,6 +15,12 @@ const COMMANDS = [
     )
     .addStringOption(option =>
       option.setName('reaction').setDescription('Reaction associated with role').setRequired(true)
+    ),
+  new SlashCommandBuilder()
+    .setName('set_autorole')
+    .setDescription('Enable or disable giving new members guest role')
+    .addBooleanOption(option =>
+      option.setName('enabled').setDescription('Should autorole be enabled').setRequired(true)
     )
 ];
 

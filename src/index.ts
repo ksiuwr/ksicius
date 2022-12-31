@@ -9,7 +9,7 @@ import {
   removeRoleOnReactionRemoved,
   setupRoleMessage
 } from './modules/roleReactionManager';
-import { setupAutorole } from './modules/setupAutorole';
+import { giveAutorole, setAutoroleEnabled } from './modules/setupAutorole';
 import { editWelcomeMessage, sendWelcomeMessage } from './modules/welcomeMessage';
 
 const client = new Client({
@@ -46,7 +46,7 @@ client.on(Events.MessageReactionRemove, async (messageReaction, user) => {
 });
 
 client.on(Events.GuildMemberAdd, async member => {
-  setupAutorole(member);
+  giveAutorole(member);
   sendWelcomeMessage(member);
 });
 
@@ -58,6 +58,9 @@ client.on(Events.InteractionCreate, async interaction => {
         break;
       case 'add_new_role_and_reaction':
         addNewRoleWithReaction(client, interaction);
+        break;
+      case 'set_autorole':
+        setAutoroleEnabled(interaction);
         break;
     }
   }
