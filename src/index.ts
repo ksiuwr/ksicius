@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 
 import COMMANDS from './commands';
 import { CLIENT_ID, GUILD_ID, MONGO_LINK, TOKEN } from './config';
+import { createPoll } from './modules/createPoll';
 import {
   addNewRoleWithReaction,
   addRoleOnReactionAdded,
@@ -61,6 +62,9 @@ client.on(Events.InteractionCreate, async interaction => {
         break;
       case 'set_autorole':
         setAutoroleEnabled(interaction);
+        break;
+      case 'create_poll':
+        createPoll(interaction);
         break;
     }
   }
