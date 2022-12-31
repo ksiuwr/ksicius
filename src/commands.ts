@@ -21,6 +21,15 @@ const COMMANDS = [
     .setDescription('Enable or disable giving new members guest role')
     .addBooleanOption(option =>
       option.setName('enabled').setDescription('Should autorole be enabled').setRequired(true)
+    ),
+  new SlashCommandBuilder()
+    .setName('create_poll')
+    .setDescription('Generate poll with given list of options')
+    .addStringOption(option =>
+      option.setName('title').setDescription('Poll title').setRequired(true)
+    )
+    .addStringOption(option =>
+      option.setName('responses_list').setDescription('List separated by ";"').setRequired(true)
     )
 ];
 
