@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
+import { ChatInputCommandInteraction, GuildMember, codeBlock } from 'discord.js';
 
 import { AUTOROLE_ID } from '../config';
 import { ConfigModel } from '../models/config';
@@ -9,12 +9,18 @@ import { ConfigModel } from '../models/config';
  */
 export const giveAutorole = async (member: GuildMember) => {
   const config = await ConfigModel.findOne({});
-  if (
-    config !== null &&
-    config.IS_AUTOROLE_ENABLED !== undefined &&
-    config.IS_AUTOROLE_ENABLED === false
-  )
+
+  if (config === null || config.IS_AUTOROLE_ENABLED === undefined) {
+    const dmChannel = member.dmChannel ?? (await member.createDM());
+    await dmChannel.send(
+      `Cześć nie udało Ci się nadać roli automatycznie, ponieważ wystąpił błąd. Skontaktuj się z administracją serwera i podaj im ten komunikat: ${codeBlock(
+        'Unable to fetch data from monogo'
+      )}`
+    );
     return;
+  }
+
+  if (config.IS_AUTOROLE_ENABLED === false) return;
   const role = await member.guild.roles.fetch(AUTOROLE_ID);
   if (role === null) return;
   member.roles.add(role);
