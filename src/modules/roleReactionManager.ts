@@ -39,6 +39,7 @@ export const addNewRoleWithReaction = async (
       content: "You don't have permission to add new role with reaction"
     });
   }
+
   const newRoleName = interaction.options.data[0].value as string;
   const newRoleEmoji = interaction.options.data[1].value as string;
   const config = await ConfigModel.findOneAndUpdate(
@@ -77,10 +78,13 @@ export const addNewRoleWithReaction = async (
   }
 
   await manageRoleMessage.edit({ embeds: [embed] });
-  await addReactions(manageRoleMessage);
-  return interaction.reply({
-    content: 'Succesfully updated'
-  });
+
+  return Promise.all([
+    interaction.reply({
+      content: 'Succesfully updated'
+    }),
+    addReactions(manageRoleMessage)
+  ]);
 };
 
 /**
