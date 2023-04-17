@@ -10,4 +10,5 @@ RUN npm install
 COPY tsconfig.json ./
 COPY src/ ./src/
 
-CMD [ "npm", "start" ]
+RUN npm run build
+CMD [ "node", "./dist/index.js" ]

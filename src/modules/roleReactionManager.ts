@@ -15,9 +15,9 @@ import {
   roleMention
 } from 'discord.js';
 
-import { EDIT_ROLE_ID, ROLES_CHANNEL_ID } from '../config';
-import { ConfigModel } from '../models/config';
-import isAbleToEdit from '../utils/isAbleToEdit';
+import { EDIT_ROLE_ID, ROLES_CHANNEL_ID } from '../config.js';
+import { ConfigModel } from '../models/config.js';
+import isAbleToEdit from '../utils/isAbleToEdit.js';
 
 /**
  * Function to handle interaction with new role and reaction
