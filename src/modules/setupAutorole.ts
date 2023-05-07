@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, GuildMember, codeBlock } from 'discord.js';
 
-import { AUTOROLE_ID } from '../config';
-import { ConfigModel } from '../models/config';
+import { AUTOROLE_ID } from '../config.js';
+import { ConfigModel } from '../models/config.js';
 
 /**
  * Function to give new guild member autorole

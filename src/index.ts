@@ -1,17 +1,17 @@
 import { Client, Events, GatewayIntentBits, Partials, REST, Routes } from 'discord.js';
 import mongoose from 'mongoose';
 
-import COMMANDS from './commands';
-import { CLIENT_ID, GUILD_ID, MONGO_LINK, TOKEN } from './config';
-import { createPoll } from './modules/createPoll';
+import COMMANDS from './commands.js';
+import { CLIENT_ID, GUILD_ID, MONGO_LINK, TOKEN } from './config.js';
+import { createPoll } from './modules/createPoll.js';
 import {
   addNewRoleWithReaction,
   addRoleOnReactionAdded,
   removeRoleOnReactionRemoved,
   setupRoleMessage
-} from './modules/roleReactionManager';
-import { giveAutorole, setAutoroleEnabled } from './modules/setupAutorole';
-import { editWelcomeMessage, sendWelcomeMessage } from './modules/welcomeMessage';
+} from './modules/roleReactionManager.js';
+import { giveAutorole, setAutoroleEnabled } from './modules/setupAutorole.js';
+import { editWelcomeMessage, sendWelcomeMessage } from './modules/welcomeMessage.js';
 
 const client = new Client({
   intents: [
