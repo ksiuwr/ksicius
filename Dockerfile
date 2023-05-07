@@ -1,11 +1,19 @@
-FROM node:lts
-
-RUN mkdir -p /bot/src
+FROM node:18-alpine3.17
 
 WORKDIR /bot
 
-COPY package.json ./
-RUN npm install
+ARG MONGO_CONNECTION_LINK \
+    CLIENT_ID \
+    GUILD_ID \
+    TOKEN
+
+ENV MONGO_CONNECTION_LINK=$MONGO_CONNECTION_LINK \
+    CLIENT_ID=$CLIENT_ID \
+    GUILD_ID=$GUILD_ID \
+    TOKEN=$TOKEN
+
+COPY package*.json ./
+RUN npm ci
 
 COPY tsconfig.json ./
 COPY src/ ./src/
