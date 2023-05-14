@@ -1,7 +1,13 @@
 // import { ConfigModel } from '../src/models/config';
 // import { isAbleToEdit } from '../src/utils/isAbleToEdit';
 import isAbleToEdit from "../src/utils/isAbleToEdit";
-import { Role, Collection, ChatInputCommandInteraction, GuildMember, GuildMemberRoleManager } from 'discord.js';
+import {
+	Role,
+	Collection,
+	ChatInputCommandInteraction,
+	GuildMember,
+	GuildMemberRoleManager
+} from 'discord.js';
 
 
 describe("isAbleToEdit", () => {

@@ -1,6 +1,12 @@
 import { ConfigModel } from '../src/models/config';
 import { giveAutorole, setAutoroleEnabled  } from '../src/modules/setupAutorole';
-import { ChatInputCommandInteraction, CommandInteractionOption, CommandInteractionOptionResolver, GuildMember, GuildMemberRoleManager } from 'discord.js';
+import {
+	ChatInputCommandInteraction,
+	CommandInteractionOption,
+	CommandInteractionOptionResolver,
+	GuildMember,
+	GuildMemberRoleManager
+} from 'discord.js';
 
 
 describe("giveAutorole", () => {
