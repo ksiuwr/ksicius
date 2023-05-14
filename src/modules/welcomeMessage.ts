@@ -1,8 +1,8 @@
 import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
 
-import { EDIT_ROLE_ID } from '../config.js';
-import { ConfigModel } from '../models/config.js';
-import isAbleToEdit from '../utils/isAbleToEdit.js';
+import { EDIT_ROLE_ID } from '../config';
+import { ConfigModel } from '../models/config';
+import isAbleToEdit from '../utils/isAbleToEdit';
 
 /**
  * Function which fetches welcome message and sends it to new guild member
