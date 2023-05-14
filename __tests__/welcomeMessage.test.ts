@@ -6,7 +6,7 @@ import { GuildMember } from 'discord.js';
 describe("sendWelcomeMessage", () => {
 	const member = ({
 		send: jest.fn(),
-	} as unknown) as GuildMember;
+	} as unknown) as GuildMember
 
 	const config = {
 		WELCOME_MESSAGE: 'wiadomosc'
