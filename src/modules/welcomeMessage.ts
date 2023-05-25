@@ -1,6 +1,5 @@
 import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
 
-import { EDIT_ROLE_ID } from '../config.js';
 import { ConfigModel } from '../models/config.js';
 import isAbleToEdit from '../utils/isAbleToEdit.js';
 
@@ -32,7 +31,7 @@ export const sendWelcomeMessage = async (member: GuildMember) => {
  * @param interaction object with all information about used command and user
  */
 export const editWelcomeMessage = async (interaction: ChatInputCommandInteraction) => {
-  if (isAbleToEdit(interaction, EDIT_ROLE_ID)) {
+  if (isAbleToEdit(interaction)) {
     const parsedMessage = (interaction.options.data[0].value as string).replaceAll('\\n', '\n');
     await ConfigModel.findOneAndUpdate(
       {},
@@ -42,6 +41,10 @@ export const editWelcomeMessage = async (interaction: ChatInputCommandInteractio
     );
     interaction.reply({
       content: `New welcome message: \n${parsedMessage}`
+    });
+  } else {
+    return interaction.reply({
+      content: "You don't have permission to edit welcome message"
     });
   }
 };

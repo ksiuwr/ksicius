@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, GuildMember, codeBlock } from 'discord.js'
 
 import { AUTOROLE_ID } from '../config.js';
 import { ConfigModel } from '../models/config.js';
+import isAbleToEdit from '../utils/isAbleToEdit.js';
 
 /**
  * Function to give new guild member autorole
@@ -33,17 +34,25 @@ export const giveAutorole = async (member: GuildMember) => {
  */
 export const setAutoroleEnabled = async (interaction: ChatInputCommandInteraction) => {
   setTimeout(() => interaction.deleteReply(), 10000);
-  const autoroleEnabled = interaction.options.data[0].value as boolean;
-  const config = await ConfigModel.findOne({});
-  if (config === null || config.IS_AUTOROLE_ENABLED === undefined) {
+
+  if (isAbleToEdit(interaction)) {
+    const autoroleEnabled = interaction.options.data[0].value as boolean;
+    const config = await ConfigModel.findOne({});
+
+    if (config === null || config.IS_AUTOROLE_ENABLED === undefined) {
+      return interaction.reply({
+        content: 'Unable to read config from MongoDB'
+      });
+    }
+    config.IS_AUTOROLE_ENABLED = autoroleEnabled;
+    config.save();
+
     return interaction.reply({
-      content: 'Unable to read config from MongoDB'
+      content: `Successfully ${autoroleEnabled ? 'enabled' : 'disabled'} autorole`
+    });
+  } else {
+    return interaction.reply({
+      content: "You don't have permission to enable or disable autorole"
     });
   }
-  config.IS_AUTOROLE_ENABLED = autoroleEnabled;
-  config.save();
-
-  return interaction.reply({
-    content: `Successfully ${autoroleEnabled ? 'enabled' : 'disabled'} autorole`
-  });
 };

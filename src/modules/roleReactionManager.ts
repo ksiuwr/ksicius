@@ -15,7 +15,7 @@ import {
   roleMention
 } from 'discord.js';
 
-import { EDIT_ROLE_ID, ROLES_CHANNEL_ID } from '../config.js';
+import { ROLES_CHANNEL_ID } from '../config.js';
 import { ConfigModel } from '../models/config.js';
 import isAbleToEdit from '../utils/isAbleToEdit.js';
 
@@ -34,7 +34,7 @@ export const addNewRoleWithReaction = async (
   interaction: ChatInputCommandInteraction
 ) => {
   setTimeout(() => interaction.deleteReply(), 10000);
-  if (!isAbleToEdit(interaction, EDIT_ROLE_ID)) {
+  if (!isAbleToEdit(interaction)) {
     return interaction.reply({
       content: "You don't have permission to add new role with reaction"
     });
@@ -126,6 +126,9 @@ export const createManageRoleMessage = async (
 const createRoleReactionEmbed = async () => {
   const config = await ConfigModel.findOne({});
   if (!config || !config.ROLE_TO_REACTION) return;
+  if (config.ROLE_TO_REACTION.size == 0) {
+    return new EmbedBuilder().setTitle('Hej! Wybierz swoje role').setColor('Gold');
+  }
   const emojisFieldContent = Array.from(config.ROLE_TO_REACTION.keys()).join('\n\n');
   const rolesFieldContent = Array.from(config.ROLE_TO_REACTION.values())
     .map(roleId => roleMention(roleId))

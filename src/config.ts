@@ -1,7 +1,6 @@
-export const ROLES_CHANNEL_ID = '1042922876686307348';
+export const ROLES_CHANNEL_ID = '1111273155256909855';
 
-export const AUTOROLE_ID = '1039585080089260077';
-export const EDIT_ROLE_ID = '1050452107670601839';
+export const AUTOROLE_ID = '637232468889436160';
 
 export const TOKEN = process.env.TOKEN || '';
 export const MONGO_LINK = process.env.MONGO_CONNECTION_LINK || '';
