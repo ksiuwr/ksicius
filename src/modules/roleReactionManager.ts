@@ -88,19 +88,97 @@ export const addNewRoleWithReaction = async (
 };
 
 /**
+ * Function to remove a single role with reaction from role panel
+ * 1. Function checks if user has proper permissions to add new role.
+ * 2. Config in MongoDB instance is updated with same object without requested key.
+ * 3. RoleMessage is updated, it's ID is also stored in config in MongoDB.
+ * 4. User is informed if his operation was successful and after 10s feedback is deleted.
+ * @param client Discord bot client
+ * @param interaction object with all information about used command and user
+ * @returns interaction reply
+ */
+export const deleteRoleWithReaction = async (
+  client: Client,
+  interaction: ChatInputCommandInteraction
+) => {
+  setTimeout(() => interaction.deleteReply(), 10000);
+  if (!isAbleToEdit(interaction)) {
+    return interaction.reply({
+      content: "You don't have permission to add new role with reaction"
+    });
+  }
+
+  const roleID = interaction.options.data[0].value as string;
+  const emoji = interaction.options.data[1].value as string;
+
+  console.log([`ROLE_TO_REACTION.${emoji}`], roleID);
+
+  const config = await ConfigModel.findOneAndUpdate(
+    {},
+    {
+      $unset: {
+        [`ROLE_TO_REACTION.${emoji}`]: roleID
+      }
+    }
+  );
+
+  if (!config || !config.ROLE_TO_REACTION || !config.ROLE_TO_REACTION_MESSAGE_ID) {
+    return interaction.reply({
+      content: 'Unable to read config from MongoDB'
+    });
+  }
+  const channel = await client.channels.fetch(ROLES_CHANNEL_ID);
+  if (!channel) {
+    return interaction.reply({
+      content: 'Unable to fetch roles channel from Discord'
+    });
+  }
+  const textChannel = channel as TextChannel;
+
+  const manageRoleMessage = await textChannel.messages.fetch(config.ROLE_TO_REACTION_MESSAGE_ID);
+  if (!manageRoleMessage) {
+    return interaction.reply({
+      content: 'Unable to fetch menage role message from Discord channel'
+    });
+  }
+  const embed = await createRoleReactionEmbed();
+  if (!embed) {
+    return interaction.reply({
+      content: 'Unable to fetch data from Discord'
+    });
+  }
+
+  await manageRoleMessage.edit({ embeds: [embed] });
+
+  return Promise.all([
+    interaction.reply({
+      content: 'Succesfully updated'
+    }),
+    removeReaction(manageRoleMessage, emoji)
+  ]);
+};
+
+/**
  * Function to detect whether there is a need to resend role message
  * If there isn't any message before at role channel then message is resent
  * @param client Discord bot client
  */
-
 export const setupRoleMessage = async (client: Client) => {
   const roleChannel = await client.channels.fetch(ROLES_CHANNEL_ID);
   const textChannel = roleChannel as TextChannel;
-  if (!textChannel.lastMessageId) {
+  const messageCount = (await textChannel.messages.fetch()).size;
+
+  if (!messageCount) {
     createManageRoleMessage(client, ROLES_CHANNEL_ID);
   }
 };
 
+/**
+ * Function to create new role panel message embed
+ * If there isn't any message before at role channel then message is resent
+ * @param client Discord bot client
+ * @param channelId ID of channel to send role panel into
+ */
 export const createManageRoleMessage = async (
   client: Client,
   channelId: Snowflake
@@ -155,6 +233,21 @@ const createRoleReactionEmbed = async () => {
   return embed;
 };
 
+/** Function which removes all reactions of one type
+ * @param message role panel message
+ * @param reaction reaction emocji to remove
+ */
+const removeReaction = async (message: Message, reaction: string) => {
+  if (message === null) return;
+  const config = await ConfigModel.findOne({});
+  if (!config || !config.ROLE_TO_REACTION) return;
+  const messageReaction = message.reactions.resolve(reaction);
+  await messageReaction?.remove();
+};
+
+/** Function which adds all reactions from Mongo Config object
+ * @param message role panel message
+ */
 const addReactions = async (message: Message) => {
   if (message === null) return;
   const config = await ConfigModel.findOne({});
@@ -205,7 +298,7 @@ const getGuildUserIdAndRole = async (
   return [guild, user.id, role];
 };
 
-/** Adds role from reaction added to roles message
+/** Adds role to user from reaction added to roles message
  * @param messageReaction Message reaction object
  * @param user User who added reaction
  */
