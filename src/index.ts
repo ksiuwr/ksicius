@@ -7,6 +7,7 @@ import { createPoll } from './modules/createPoll.js';
 import {
   addNewRoleWithReaction,
   addRoleOnReactionAdded,
+  deleteRoleWithReaction,
   removeRoleOnReactionRemoved,
   setupRoleMessage
 } from './modules/roleReactionManager.js';
@@ -65,6 +66,9 @@ client.on(Events.InteractionCreate, async interaction => {
         break;
       case 'create_poll':
         createPoll(interaction);
+        break;
+      case 'delete_role_with_reaction':
+        deleteRoleWithReaction(client, interaction);
         break;
     }
   }

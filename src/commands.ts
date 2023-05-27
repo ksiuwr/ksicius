@@ -17,6 +17,15 @@ const COMMANDS = [
       option.setName('reaction').setDescription('Reaction associated with role').setRequired(true)
     ),
   new SlashCommandBuilder()
+    .setName('delete_role_with_reaction')
+    .setDescription('Remove role from role panel')
+    .addStringOption(option =>
+      option.setName('role_id').setDescription('Role ID to delete').setRequired(true)
+    )
+    .addStringOption(option =>
+      option.setName('emoji').setDescription('Emoji to delete').setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName('set_autorole')
     .setDescription('Enable or disable giving new members guest role')
     .addBooleanOption(option =>
