@@ -1,8 +1,14 @@
-import { APIEmbedField, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import {
+  APIEmbedField,
+  ChatInputCommandInteraction,
+  DiscordAPIError,
+  EmbedBuilder
+} from 'discord.js';
 
 const numbers = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 
 export const createPoll = async (interaction: ChatInputCommandInteraction) => {
+  setTimeout(() => interaction.deleteReply(), 10000);
   const title = interaction.options.data[0].value as string;
   const optionsString = interaction.options.data[1].value as string;
   const optionsList = optionsString.split(';');
@@ -15,13 +21,21 @@ export const createPoll = async (interaction: ChatInputCommandInteraction) => {
     return;
   }
 
-  const message = await channel.send({ embeds: [embed] });
-  numbersList.forEach(async emoji => {
-    await message.react(emoji);
-  });
+  try {
+    const message = await channel.send({ embeds: [embed] });
+    numbersList.forEach(async emoji => {
+      await message.react(emoji);
+    });
 
-  await interaction.reply('.');
-  await interaction.deleteReply();
+    await interaction.reply('.');
+    await interaction.deleteReply();
+  } catch (err) {
+    if (err instanceof DiscordAPIError) {
+      interaction.reply({
+        content: `Unable to create a poll: ${err.message}. Code: ${err.code}`
+      });
+    }
+  }
 };
 
 const createPollEmbed = (
