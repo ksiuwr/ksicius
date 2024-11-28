@@ -2,22 +2,22 @@ import {
   APIEmbedField,
   ChatInputCommandInteraction,
   DiscordAPIError,
-  EmbedBuilder
+  EmbedBuilder,
+  TextChannel
 } from 'discord.js';
 
 const numbers = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 
 export const createPoll = async (interaction: ChatInputCommandInteraction) => {
-  setTimeout(() => interaction.deleteReply(), 10000);
   const title = interaction.options.data[0].value as string;
   const optionsString = interaction.options.data[1].value as string;
-  const optionsList = optionsString.split(';');
+  const optionsList = optionsString.split(';').filter(opt => opt && opt.trim().length > 0);
   const numbersList = numbers.slice(0, optionsList.length);
 
   const embed = createPollEmbed(title, interaction.user.username, optionsList, numbersList);
 
   const channel = interaction.channel;
-  if (channel === null) {
+  if (channel === null || !(channel instanceof TextChannel)) {
     return;
   }
 
@@ -27,8 +27,7 @@ export const createPoll = async (interaction: ChatInputCommandInteraction) => {
       await message.react(emoji);
     });
 
-    await interaction.reply('.');
-    await interaction.deleteReply();
+    await interaction.reply({ content: 'Pool created', ephemeral: true });
   } catch (err) {
     if (err instanceof DiscordAPIError) {
       interaction.reply({

@@ -1,4 +1,6 @@
-export const ROLES_CHANNEL_ID = '1111696723572703424';
+import 'dotenv/config';
+
+export const ROLES_CHANNEL_ID = '1311813077662040188';
 
 export const AUTOROLE_ID = '637232468889436160';
 
