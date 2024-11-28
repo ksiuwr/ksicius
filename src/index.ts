@@ -13,6 +13,7 @@ import {
 } from './modules/roleReactionManager.js';
 import { giveAutorole, setAutoroleEnabled } from './modules/setupAutorole.js';
 import { editWelcomeMessage, sendWelcomeMessage } from './modules/welcomeMessage.js';
+import { logGuildEventCreated, logGuildEventDeleted, logGuildEventUserAdd, logGuildEventUserRemove } from './modules/guildEvents.js'
 
 const client = new Client({
   intents: [
@@ -21,7 +22,8 @@ const client = new Client({
     GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessageReactions
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildScheduledEvents
   ],
   partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
@@ -72,4 +74,24 @@ client.on(Events.InteractionCreate, async interaction => {
         break;
     }
   }
+});
+
+client.on(Events.GuildScheduledEventCreate, async event => {
+  logGuildEventCreated(event);
+});
+
+client.on(Events.GuildScheduledEventDelete, async event => {
+  logGuildEventDeleted(event);
+});
+
+client.on(Events.GuildScheduledEventUpdate, async event => {
+  console.log(event);
+});
+
+client.on(Events.GuildScheduledEventUserAdd, async event => {
+  logGuildEventUserAdd(event);
+});
+
+client.on(Events.GuildScheduledEventUserRemove, async event => {
+  logGuildEventUserRemove(event);
 });
