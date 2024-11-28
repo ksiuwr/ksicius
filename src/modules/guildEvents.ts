@@ -1,4 +1,4 @@
-import { GuildScheduledEvent } from "discord.js";
+import { GuildScheduledEvent, PartialGuildScheduledEvent } from 'discord.js';
 
 /**
  * Function to log scheduled guild events
@@ -6,7 +6,7 @@ import { GuildScheduledEvent } from "discord.js";
  * @returns {void}
  */
 export const logGuildEventCreated = async (event: GuildScheduledEvent) => {
-    console.log(event);
+  console.log(event);
 };
 
 /**
@@ -14,8 +14,10 @@ export const logGuildEventCreated = async (event: GuildScheduledEvent) => {
  * @param event Object with all information about scheduled event
  * @returns {void}
  */
-export const logGuildEventDeleted = async (event: GuildScheduledEvent) => {
-    console.log(event);
+export const logGuildEventDeleted = async (
+  event: GuildScheduledEvent | PartialGuildScheduledEvent
+) => {
+  console.log(event);
 };
 
 /**
@@ -23,8 +25,10 @@ export const logGuildEventDeleted = async (event: GuildScheduledEvent) => {
  * @param event Object with all information about scheduled event
  * @returns {void}
  */
-export const logGuildEventUpdated = async (event: GuildScheduledEvent) => {
-    console.log(event);
+export const logGuildEventUpdated = async (
+  event: GuildScheduledEvent | PartialGuildScheduledEvent | null
+) => {
+  console.log(event);
 };
 
 /**
@@ -32,8 +36,10 @@ export const logGuildEventUpdated = async (event: GuildScheduledEvent) => {
  * @param event Object with all information about scheduled event
  * @returns {void}
  */
-export const logGuildEventUserAdd = async (event: GuildScheduledEvent) => {
-    console.log(event);
+export const logGuildEventUserAdd = async (
+  event: GuildScheduledEvent | PartialGuildScheduledEvent
+) => {
+  console.log(event);
 };
 
 /**
@@ -41,6 +47,8 @@ export const logGuildEventUserAdd = async (event: GuildScheduledEvent) => {
  * @param event Object with all information about scheduled event
  * @returns {void}
  */
-export const logGuildEventUserRemove = async (event: GuildScheduledEvent) => {
-    console.log(event);
+export const logGuildEventUserRemove = async (
+  event: GuildScheduledEvent | PartialGuildScheduledEvent
+) => {
+  console.log(event);
 };

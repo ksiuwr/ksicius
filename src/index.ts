@@ -5,6 +5,13 @@ import COMMANDS from './commands.js';
 import { CLIENT_ID, GUILD_ID, MONGO_LINK, TOKEN } from './config.js';
 import { createPoll } from './modules/createPoll.js';
 import {
+  logGuildEventCreated,
+  logGuildEventDeleted,
+  logGuildEventUpdated,
+  logGuildEventUserAdd,
+  logGuildEventUserRemove
+} from './modules/guildEvents.js';
+import {
   addNewRoleWithReaction,
   addRoleOnReactionAdded,
   deleteRoleWithReaction,
@@ -13,7 +20,6 @@ import {
 } from './modules/roleReactionManager.js';
 import { giveAutorole, setAutoroleEnabled } from './modules/setupAutorole.js';
 import { editWelcomeMessage, sendWelcomeMessage } from './modules/welcomeMessage.js';
-import { logGuildEventCreated, logGuildEventDeleted, logGuildEventUserAdd, logGuildEventUserRemove } from './modules/guildEvents.js'
 
 const client = new Client({
   intents: [
@@ -85,7 +91,7 @@ client.on(Events.GuildScheduledEventDelete, async event => {
 });
 
 client.on(Events.GuildScheduledEventUpdate, async event => {
-  console.log(event);
+  logGuildEventUpdated(event);
 });
 
 client.on(Events.GuildScheduledEventUserAdd, async event => {
