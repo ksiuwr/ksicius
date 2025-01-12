@@ -6,8 +6,8 @@ import { ChatInputCommandInteraction, GuildMember } from 'discord.js';
  * @returns boolean if user is able to edit
  */
 const isAbleToEdit = (interaction: ChatInputCommandInteraction) => {
-  const member = interaction.member as GuildMember;
-  return member.permissions.has('Administrator');
+	const member = interaction.member as GuildMember;
+	return member.permissions.has('Administrator');
 };
 
 export default isAbleToEdit;
