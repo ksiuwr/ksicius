@@ -29,10 +29,7 @@ import isAbleToEdit from '../utils/isAbleToEdit.js';
  * @param interaction object with all information about used command and user
  * @returns interaction reply
  */
-export const addNewRoleWithReaction = async (
-  client: Client,
-  interaction: ChatInputCommandInteraction
-) => {
+export const addNewRoleWithReaction = async (interaction: ChatInputCommandInteraction) => {
   setTimeout(() => interaction.deleteReply(), 10000);
   if (!isAbleToEdit(interaction)) {
     return interaction.reply({
@@ -56,6 +53,8 @@ export const addNewRoleWithReaction = async (
       content: 'Unable to read config from MongoDB'
     });
   }
+
+  const client = interaction.client;
   const channel = await client.channels.fetch(ROLES_CHANNEL_ID);
   if (!channel) {
     return interaction.reply({
@@ -97,10 +96,7 @@ export const addNewRoleWithReaction = async (
  * @param interaction object with all information about used command and user
  * @returns interaction reply
  */
-export const deleteRoleWithReaction = async (
-  client: Client,
-  interaction: ChatInputCommandInteraction
-) => {
+export const deleteRoleWithReaction = async (interaction: ChatInputCommandInteraction) => {
   setTimeout(() => interaction.deleteReply(), 10000);
   if (!isAbleToEdit(interaction)) {
     return interaction.reply({
@@ -127,6 +123,8 @@ export const deleteRoleWithReaction = async (
       content: 'Unable to read config from MongoDB'
     });
   }
+
+  const client = interaction.client;
   const channel = await client.channels.fetch(ROLES_CHANNEL_ID);
   if (!channel) {
     return interaction.reply({

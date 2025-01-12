@@ -1,20 +1,20 @@
 {
 	"name": "ksicius",
 	"version": "1.0.0",
-	"main": "index.js",
+	"main": "dist/index.js",
 	"license": "MIT",
 	"scripts": {
-		"start": "node --loader ts-node/esm src/index.ts",
-		"lint": "eslint src",
+		"start": "node .",		
 		"build": "tsc --project tsconfig.json",
-		"docs": "typedoc --out docs --entryPointStrategy expand src"
+		"docs": "typedoc --out docs --entryPointStrategy expand src",
+		"lint": "eslint src",
+		"clear": "rm -rf dist"
 	},
 	"dependencies": {
 		"discord.js": "^14.6.0",
 		"dotenv": "^16.4.5",
-		"mongoose": "^6.7.3"
+		"mongoose": "^8.9.4"
 	},
-	"type": "module",
 	"devDependencies": {
 		"@trivago/prettier-plugin-sort-imports": "^4.0.0",
 		"@types/node": "^16.11.3",
@@ -23,9 +23,8 @@
 		"eslint": "^8.28.0",
 		"eslint-plugin-prettier": "^4.2.1",
 		"prettier": "^2.7.1",
-		"ts-node": "^10.9.1",
-		"typedoc": "^0.23.23",
-		"typescript": "^4.9.3"
+		"typedoc": "^0.27.6",
+		"typescript": "^5.7.3"
 	},
 	"engines": {
 		"node": ">=16.6.0",

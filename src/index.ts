@@ -1,103 +1,11 @@
-import { Client, Events, GatewayIntentBits, Partials, REST, Routes } from 'discord.js';
 import mongoose from 'mongoose';
 
-import COMMANDS from './commands.js';
-import { CLIENT_ID, GUILD_ID, MONGO_LINK, TOKEN } from './config.js';
-import { createPoll } from './modules/createPoll.js';
-import {
-  logGuildEventCreated,
-  logGuildEventDeleted,
-  logGuildEventUpdated,
-  logGuildEventUserAdd,
-  logGuildEventUserRemove
-} from './modules/guildEvents.js';
-import {
-  addNewRoleWithReaction,
-  addRoleOnReactionAdded,
-  deleteRoleWithReaction,
-  removeRoleOnReactionRemoved,
-  setupRoleMessage
-} from './modules/roleReactionManager.js';
-import { giveAutorole, setAutoroleEnabled } from './modules/setupAutorole.js';
-import { editWelcomeMessage, sendWelcomeMessage } from './modules/welcomeMessage.js';
+import { initializeBot } from './bot';
+import { MONGO_LINK } from './config';
 
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.GuildScheduledEvents
-  ],
-  partials: [Partials.Message, Partials.Channel, Partials.Reaction]
-});
+(async () => {
+  mongoose.set('strictQuery', true);
+  await mongoose.connect(MONGO_LINK);
 
-await mongoose.connect(MONGO_LINK);
-
-const rest = new REST({ version: '10' }).setToken(TOKEN);
-await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
-  body: COMMANDS.map(command => command.toJSON())
-});
-await client.login(TOKEN);
-
-client.on(Events.ClientReady, async () => {
-  console.log('Ready');
-  setupRoleMessage(client);
-});
-
-client.on(Events.MessageReactionAdd, async (messageReaction, user) => {
-  addRoleOnReactionAdded(messageReaction, user);
-});
-
-client.on(Events.MessageReactionRemove, async (messageReaction, user) => {
-  removeRoleOnReactionRemoved(messageReaction, user);
-});
-
-client.on(Events.GuildMemberAdd, async member => {
-  giveAutorole(member);
-  sendWelcomeMessage(member);
-});
-
-client.on(Events.InteractionCreate, async interaction => {
-  if (interaction.isChatInputCommand()) {
-    switch (interaction.commandName) {
-      case 'edit_welcome_message':
-        editWelcomeMessage(interaction);
-        break;
-      case 'add_new_role_and_reaction':
-        addNewRoleWithReaction(client, interaction);
-        break;
-      case 'set_autorole':
-        setAutoroleEnabled(interaction);
-        break;
-      case 'create_poll':
-        createPoll(interaction);
-        break;
-      case 'delete_role_with_reaction':
-        deleteRoleWithReaction(client, interaction);
-        break;
-    }
-  }
-});
-
-client.on(Events.GuildScheduledEventCreate, async event => {
-  logGuildEventCreated(event);
-});
-
-client.on(Events.GuildScheduledEventDelete, async event => {
-  logGuildEventDeleted(event);
-});
-
-client.on(Events.GuildScheduledEventUpdate, async event => {
-  logGuildEventUpdated(event);
-});
-
-client.on(Events.GuildScheduledEventUserAdd, async event => {
-  logGuildEventUserAdd(event);
-});
-
-client.on(Events.GuildScheduledEventUserRemove, async event => {
-  logGuildEventUserRemove(event);
-});
+  await initializeBot();
+})();
