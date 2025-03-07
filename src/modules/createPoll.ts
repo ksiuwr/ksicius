@@ -1,65 +1,65 @@
 import {
-  APIEmbedField,
-  ChatInputCommandInteraction,
-  DiscordAPIError,
-  EmbedBuilder,
-  TextChannel
+	APIEmbedField,
+	ChatInputCommandInteraction,
+	DiscordAPIError,
+	EmbedBuilder,
+	TextChannel
 } from 'discord.js';
 
 const numbers = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 
 export const createPoll = async (interaction: ChatInputCommandInteraction) => {
-  const title = interaction.options.data[0].value as string;
-  const optionsString = interaction.options.data[1].value as string;
-  const optionsList = optionsString.split(';').filter(opt => opt && opt.trim().length > 0);
-  const numbersList = numbers.slice(0, optionsList.length);
+	const title = interaction.options.data[0].value as string;
+	const optionsString = interaction.options.data[1].value as string;
+	const optionsList = optionsString.split(';').filter(opt => opt && opt.trim().length > 0);
+	const numbersList = numbers.slice(0, optionsList.length);
 
-  const embed = createPollEmbed(title, interaction.user.username, optionsList, numbersList);
+	const embed = createPollEmbed(title, interaction.user.username, optionsList, numbersList);
 
-  const channel = interaction.channel;
-  if (channel === null || !(channel instanceof TextChannel)) {
-    return;
-  }
+	const channel = interaction.channel;
+	if (channel === null || !(channel instanceof TextChannel)) {
+		return;
+	}
 
-  try {
-    const message = await channel.send({ embeds: [embed] });
-    numbersList.forEach(async emoji => {
-      await message.react(emoji);
-    });
+	try {
+		const message = await channel.send({ embeds: [embed] });
+		numbersList.forEach(async emoji => {
+			await message.react(emoji);
+		});
 
-    await interaction.reply({ content: 'Pool created', ephemeral: true });
-  } catch (err) {
-    if (err instanceof DiscordAPIError) {
-      interaction.reply({
-        content: `Unable to create a poll: ${err.message}. Code: ${err.code}`
-      });
-    }
-  }
+		await interaction.reply({ content: 'Pool created', ephemeral: true });
+	} catch (err) {
+		if (err instanceof DiscordAPIError) {
+			interaction.reply({
+				content: `Unable to create a poll: ${err.message}. Code: ${err.code}`
+			});
+		}
+	}
 };
 
 const createPollEmbed = (
-  title: string,
-  author: string,
-  options: string[],
-  emojiNumbers: string[]
+	title: string,
+	author: string,
+	options: string[],
+	emojiNumbers: string[]
 ) => {
-  const fields = [];
-  for (let i = 0; i < options.length; i++) {
-    const option = options[i];
-    const emoji = emojiNumbers[i];
-    const field: APIEmbedField = {
-      name: `Option ${emoji}`,
-      value: option,
-      inline: true
-    };
-    fields.push(field);
-  }
+	const fields = [];
+	for (let i = 0; i < options.length; i++) {
+		const option = options[i];
+		const emoji = emojiNumbers[i];
+		const field: APIEmbedField = {
+			name: `Option ${emoji}`,
+			value: option,
+			inline: true
+		};
+		fields.push(field);
+	}
 
-  const embed = new EmbedBuilder()
-    .setTitle(title)
-    .addFields(fields)
-    .setColor('Gold')
-    .setFooter({ text: author });
+	const embed = new EmbedBuilder()
+		.setTitle(title)
+		.addFields(fields)
+		.setColor('Gold')
+		.setFooter({ text: author });
 
-  return embed;
+	return embed;
 };

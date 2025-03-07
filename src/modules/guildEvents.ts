@@ -6,7 +6,7 @@ import { GuildScheduledEvent, PartialGuildScheduledEvent } from 'discord.js';
  * @returns {void}
  */
 export const logGuildEventCreated = async (event: GuildScheduledEvent) => {
-  console.log(event);
+	console.log(event);
 };
 
 /**
@@ -15,9 +15,9 @@ export const logGuildEventCreated = async (event: GuildScheduledEvent) => {
  * @returns {void}
  */
 export const logGuildEventDeleted = async (
-  event: GuildScheduledEvent | PartialGuildScheduledEvent
+	event: GuildScheduledEvent | PartialGuildScheduledEvent
 ) => {
-  console.log(event);
+	console.log(event);
 };
 
 /**
@@ -26,9 +26,9 @@ export const logGuildEventDeleted = async (
  * @returns {void}
  */
 export const logGuildEventUpdated = async (
-  event: GuildScheduledEvent | PartialGuildScheduledEvent | null
+	event: GuildScheduledEvent | PartialGuildScheduledEvent | null
 ) => {
-  console.log(event);
+	console.log(event);
 };
 
 /**
@@ -37,9 +37,9 @@ export const logGuildEventUpdated = async (
  * @returns {void}
  */
 export const logGuildEventUserAdd = async (
-  event: GuildScheduledEvent | PartialGuildScheduledEvent
+	event: GuildScheduledEvent | PartialGuildScheduledEvent
 ) => {
-  console.log(event);
+	console.log(event);
 };
 
 /**
@@ -48,7 +48,7 @@ export const logGuildEventUserAdd = async (
  * @returns {void}
  */
 export const logGuildEventUserRemove = async (
-  event: GuildScheduledEvent | PartialGuildScheduledEvent
+	event: GuildScheduledEvent | PartialGuildScheduledEvent
 ) => {
-  console.log(event);
+	console.log(event);
 };

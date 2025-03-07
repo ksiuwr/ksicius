@@ -1,18 +1,18 @@
 import {
-  APIEmbedField,
-  ChatInputCommandInteraction,
-  Client,
-  EmbedBuilder,
-  Guild,
-  Message,
-  MessageReaction,
-  PartialMessageReaction,
-  PartialUser,
-  Role,
-  Snowflake,
-  TextChannel,
-  User,
-  roleMention
+	APIEmbedField,
+	ChatInputCommandInteraction,
+	Client,
+	EmbedBuilder,
+	Guild,
+	Message,
+	MessageReaction,
+	PartialMessageReaction,
+	PartialUser,
+	Role,
+	Snowflake,
+	TextChannel,
+	User,
+	roleMention
 } from 'discord.js';
 
 import { ROLES_CHANNEL_ID } from '../config.js';
@@ -29,62 +29,61 @@ import isAbleToEdit from '../utils/isAbleToEdit.js';
  * @param interaction object with all information about used command and user
  * @returns interaction reply
  */
-export const addNewRoleWithReaction = async (
-  client: Client,
-  interaction: ChatInputCommandInteraction
-) => {
-  setTimeout(() => interaction.deleteReply(), 10000);
-  if (!isAbleToEdit(interaction)) {
-    return interaction.reply({
-      content: "You don't have permission to add new role with reaction"
-    });
-  }
+export const addNewRoleWithReaction = async (interaction: ChatInputCommandInteraction) => {
+	setTimeout(() => interaction.deleteReply(), 10000);
+	if (!isAbleToEdit(interaction)) {
+		return interaction.reply({
+			content: "You don't have permission to add new role with reaction"
+		});
+	}
 
-  const newRoleName = interaction.options.data[0].value as string;
-  const newRoleEmoji = interaction.options.data[1].value as string;
-  const config = await ConfigModel.findOneAndUpdate(
-    {},
-    {
-      $set: {
-        [`ROLE_TO_REACTION.${newRoleEmoji}`]: newRoleName
-      }
-    }
-  );
+	const newRoleName = interaction.options.data[0].value as string;
+	const newRoleEmoji = interaction.options.data[1].value as string;
+	const config = await ConfigModel.findOneAndUpdate(
+		{},
+		{
+			$set: {
+				[`ROLE_TO_REACTION.${newRoleEmoji}`]: newRoleName
+			}
+		}
+	);
 
-  if (!config || !config.ROLE_TO_REACTION || !config.ROLE_TO_REACTION_MESSAGE_ID) {
-    return interaction.reply({
-      content: 'Unable to read config from MongoDB'
-    });
-  }
-  const channel = await client.channels.fetch(ROLES_CHANNEL_ID);
-  if (!channel) {
-    return interaction.reply({
-      content: 'Unable to fetch roles channel from Discord'
-    });
-  }
-  const textChannel = channel as TextChannel;
+	if (!config || !config.ROLE_TO_REACTION || !config.ROLE_TO_REACTION_MESSAGE_ID) {
+		return interaction.reply({
+			content: 'Unable to read config from MongoDB'
+		});
+	}
 
-  const manageRoleMessage = await textChannel.messages.fetch(config.ROLE_TO_REACTION_MESSAGE_ID);
-  if (!manageRoleMessage) {
-    return interaction.reply({
-      content: 'Unable to fetch menage role message from Discord channel'
-    });
-  }
-  const embed = await createRoleReactionEmbed();
-  if (!embed) {
-    return interaction.reply({
-      content: 'Unable to fetch data from Discord'
-    });
-  }
+	const client = interaction.client;
+	const channel = await client.channels.fetch(ROLES_CHANNEL_ID);
+	if (!channel) {
+		return interaction.reply({
+			content: 'Unable to fetch roles channel from Discord'
+		});
+	}
+	const textChannel = channel as TextChannel;
 
-  await manageRoleMessage.edit({ embeds: [embed] });
+	const manageRoleMessage = await textChannel.messages.fetch(config.ROLE_TO_REACTION_MESSAGE_ID);
+	if (!manageRoleMessage) {
+		return interaction.reply({
+			content: 'Unable to fetch menage role message from Discord channel'
+		});
+	}
+	const embed = await createRoleReactionEmbed();
+	if (!embed) {
+		return interaction.reply({
+			content: 'Unable to fetch data from Discord'
+		});
+	}
 
-  return Promise.all([
-    interaction.reply({
-      content: 'Succesfully updated'
-    }),
-    addReactions(manageRoleMessage)
-  ]);
+	await manageRoleMessage.edit({ embeds: [embed] });
+
+	return Promise.all([
+		interaction.reply({
+			content: 'Succesfully updated'
+		}),
+		addReactions(manageRoleMessage)
+	]);
 };
 
 /**
@@ -97,65 +96,64 @@ export const addNewRoleWithReaction = async (
  * @param interaction object with all information about used command and user
  * @returns interaction reply
  */
-export const deleteRoleWithReaction = async (
-  client: Client,
-  interaction: ChatInputCommandInteraction
-) => {
-  setTimeout(() => interaction.deleteReply(), 10000);
-  if (!isAbleToEdit(interaction)) {
-    return interaction.reply({
-      content: "You don't have permission to add new role with reaction"
-    });
-  }
+export const deleteRoleWithReaction = async (interaction: ChatInputCommandInteraction) => {
+	setTimeout(() => interaction.deleteReply(), 10000);
+	if (!isAbleToEdit(interaction)) {
+		return interaction.reply({
+			content: "You don't have permission to add new role with reaction"
+		});
+	}
 
-  const roleID = interaction.options.data[0].value as string;
-  const emoji = interaction.options.data[1].value as string;
+	const roleID = interaction.options.data[0].value as string;
+	const emoji = interaction.options.data[1].value as string;
 
-  console.log([`ROLE_TO_REACTION.${emoji}`], roleID);
+	console.log([`ROLE_TO_REACTION.${emoji}`], roleID);
 
-  const config = await ConfigModel.findOneAndUpdate(
-    {},
-    {
-      $unset: {
-        [`ROLE_TO_REACTION.${emoji}`]: roleID
-      }
-    }
-  );
+	const config = await ConfigModel.findOneAndUpdate(
+		{},
+		{
+			$unset: {
+				[`ROLE_TO_REACTION.${emoji}`]: roleID
+			}
+		}
+	);
 
-  if (!config || !config.ROLE_TO_REACTION || !config.ROLE_TO_REACTION_MESSAGE_ID) {
-    return interaction.reply({
-      content: 'Unable to read config from MongoDB'
-    });
-  }
-  const channel = await client.channels.fetch(ROLES_CHANNEL_ID);
-  if (!channel) {
-    return interaction.reply({
-      content: 'Unable to fetch roles channel from Discord'
-    });
-  }
-  const textChannel = channel as TextChannel;
+	if (!config || !config.ROLE_TO_REACTION || !config.ROLE_TO_REACTION_MESSAGE_ID) {
+		return interaction.reply({
+			content: 'Unable to read config from MongoDB'
+		});
+	}
 
-  const manageRoleMessage = await textChannel.messages.fetch(config.ROLE_TO_REACTION_MESSAGE_ID);
-  if (!manageRoleMessage) {
-    return interaction.reply({
-      content: 'Unable to fetch menage role message from Discord channel'
-    });
-  }
-  const embed = await createRoleReactionEmbed();
-  if (!embed) {
-    return interaction.reply({
-      content: 'Unable to fetch data from Discord'
-    });
-  }
+	const client = interaction.client;
+	const channel = await client.channels.fetch(ROLES_CHANNEL_ID);
+	if (!channel) {
+		return interaction.reply({
+			content: 'Unable to fetch roles channel from Discord'
+		});
+	}
+	const textChannel = channel as TextChannel;
 
-  await manageRoleMessage.edit({ embeds: [embed] });
+	const manageRoleMessage = await textChannel.messages.fetch(config.ROLE_TO_REACTION_MESSAGE_ID);
+	if (!manageRoleMessage) {
+		return interaction.reply({
+			content: 'Unable to fetch menage role message from Discord channel'
+		});
+	}
+	const embed = await createRoleReactionEmbed();
+	if (!embed) {
+		return interaction.reply({
+			content: 'Unable to fetch data from Discord'
+		});
+	}
 
-  return Promise.all([
-    interaction.reply({
-      content: 'Succesfully updated'
-    }),
-    removeReaction(manageRoleMessage, emoji)
-  ]);
+	await manageRoleMessage.edit({ embeds: [embed] });
+
+	return Promise.all([
+		interaction.reply({
+			content: 'Succesfully updated'
+		}),
+		removeReaction(manageRoleMessage, emoji)
+	]);
 };
 
 /**
@@ -164,13 +162,13 @@ export const deleteRoleWithReaction = async (
  * @param client Discord bot client
  */
 export const setupRoleMessage = async (client: Client) => {
-  const roleChannel = await client.channels.fetch(ROLES_CHANNEL_ID);
-  const textChannel = roleChannel as TextChannel;
-  const messageCount = (await textChannel.messages.fetch()).size;
+	const roleChannel = await client.channels.fetch(ROLES_CHANNEL_ID);
+	const textChannel = roleChannel as TextChannel;
+	const messageCount = (await textChannel.messages.fetch()).size;
 
-  if (!messageCount) {
-    createManageRoleMessage(client, ROLES_CHANNEL_ID);
-  }
+	if (!messageCount) {
+		createManageRoleMessage(client, ROLES_CHANNEL_ID);
+	}
 };
 
 /**
@@ -180,20 +178,20 @@ export const setupRoleMessage = async (client: Client) => {
  * @param channelId ID of channel to send role panel into
  */
 export const createManageRoleMessage = async (
-  client: Client,
-  channelId: Snowflake
+	client: Client,
+	channelId: Snowflake
 ): Promise<void> => {
-  const channel = await client.channels.fetch(channelId);
-  if (channel === null || !channel.isTextBased()) return;
-  const textChannel = channel as TextChannel;
+	const channel = await client.channels.fetch(channelId);
+	if (channel === null || !channel.isTextBased()) return;
+	const textChannel = channel as TextChannel;
 
-  const embed = await createRoleReactionEmbed();
-  if (embed) {
-    const msg = await textChannel.send({ embeds: [embed] });
-    if (msg === null) return;
-    await ConfigModel.findOneAndUpdate({}, { ROLE_TO_REACTION_MESSAGE_ID: msg.id });
-    await addReactions(msg);
-  }
+	const embed = await createRoleReactionEmbed();
+	if (embed) {
+		const msg = await textChannel.send({ embeds: [embed] });
+		if (msg === null) return;
+		await ConfigModel.findOneAndUpdate({}, { ROLE_TO_REACTION_MESSAGE_ID: msg.id });
+		await addReactions(msg);
+	}
 };
 
 /** Function to create embed message for choosing a role at server
@@ -202,35 +200,35 @@ export const createManageRoleMessage = async (
  * @returns embed message with roles and reactions
  */
 const createRoleReactionEmbed = async () => {
-  const config = await ConfigModel.findOne({});
-  if (!config || !config.ROLE_TO_REACTION) return;
-  if (config.ROLE_TO_REACTION.size == 0) {
-    return new EmbedBuilder().setTitle('Hej! Wybierz swoje role').setColor('Gold');
-  }
-  const emojisFieldContent = Array.from(config.ROLE_TO_REACTION.keys()).join('\n\n');
-  const rolesFieldContent = Array.from(config.ROLE_TO_REACTION.values())
-    .map(roleId => roleMention(roleId))
-    .join('\n\n');
+	const config = await ConfigModel.findOne({});
+	if (!config || !config.ROLE_TO_REACTION) return;
+	if (config.ROLE_TO_REACTION.size == 0) {
+		return new EmbedBuilder().setTitle('Hej! Wybierz swoje role').setColor('Gold');
+	}
+	const emojisFieldContent = Array.from(config.ROLE_TO_REACTION.keys()).join('\n\n');
+	const rolesFieldContent = Array.from(config.ROLE_TO_REACTION.values())
+		.map(roleId => roleMention(roleId))
+		.join('\n\n');
 
-  const fieldTab: APIEmbedField[] = [
-    {
-      name: 'Emoji',
-      value: emojisFieldContent,
-      inline: true
-    },
-    {
-      name: 'Rola',
-      value: rolesFieldContent,
-      inline: true
-    }
-  ];
+	const fieldTab: APIEmbedField[] = [
+		{
+			name: 'Emoji',
+			value: emojisFieldContent,
+			inline: true
+		},
+		{
+			name: 'Rola',
+			value: rolesFieldContent,
+			inline: true
+		}
+	];
 
-  const embed = new EmbedBuilder()
-    .setTitle('Hej! Wybierz swoje role')
-    .addFields(fieldTab)
-    .setColor('Gold');
+	const embed = new EmbedBuilder()
+		.setTitle('Hej! Wybierz swoje role')
+		.addFields(fieldTab)
+		.setColor('Gold');
 
-  return embed;
+	return embed;
 };
 
 /** Function which removes all reactions of one type
@@ -238,24 +236,24 @@ const createRoleReactionEmbed = async () => {
  * @param reaction reaction emocji to remove
  */
 const removeReaction = async (message: Message, reaction: string) => {
-  if (message === null) return;
-  const config = await ConfigModel.findOne({});
-  if (!config || !config.ROLE_TO_REACTION) return;
-  const messageReaction = message.reactions.resolve(reaction);
-  await messageReaction?.remove();
+	if (message === null) return;
+	const config = await ConfigModel.findOne({});
+	if (!config || !config.ROLE_TO_REACTION) return;
+	const messageReaction = message.reactions.resolve(reaction);
+	await messageReaction?.remove();
 };
 
 /** Function which adds all reactions from Mongo Config object
  * @param message role panel message
  */
 const addReactions = async (message: Message) => {
-  if (message === null) return;
-  const config = await ConfigModel.findOne({});
-  if (!config || !config.ROLE_TO_REACTION) return;
+	if (message === null) return;
+	const config = await ConfigModel.findOne({});
+	if (!config || !config.ROLE_TO_REACTION) return;
 
-  for (const key of config.ROLE_TO_REACTION.keys()) {
-    await message.react(key);
-  }
+	for (const key of config.ROLE_TO_REACTION.keys()) {
+		await message.react(key);
+	}
 };
 
 /** Function get guild, user id and role from message reaction
@@ -272,30 +270,30 @@ const addReactions = async (message: Message) => {
  * @returns tuple with guild object, user id and role object or null on failure
  */
 const getGuildUserIdAndRole = async (
-  messageReaction: MessageReaction | PartialMessageReaction,
-  user: User | PartialUser
+	messageReaction: MessageReaction | PartialMessageReaction,
+	user: User | PartialUser
 ): Promise<[Guild, Snowflake, Role] | null> => {
-  if (user.bot) return null;
+	if (user.bot) return null;
 
-  const config = await ConfigModel.findOne({});
-  if (!config || !config.ROLE_TO_REACTION || !config.ROLE_TO_REACTION_MESSAGE_ID) return null;
+	const config = await ConfigModel.findOne({});
+	if (!config || !config.ROLE_TO_REACTION || !config.ROLE_TO_REACTION_MESSAGE_ID) return null;
 
-  messageReaction = await messageReaction.fetch();
-  if (messageReaction.emoji.name === null) return null;
-  if (messageReaction.message.id !== config.ROLE_TO_REACTION_MESSAGE_ID) return null;
+	messageReaction = await messageReaction.fetch();
+	if (messageReaction.emoji.name === null) return null;
+	if (messageReaction.message.id !== config.ROLE_TO_REACTION_MESSAGE_ID) return null;
 
-  const roleId = config.ROLE_TO_REACTION.get(messageReaction.emoji.name);
-  if (roleId === undefined) return null;
+	const roleId = config.ROLE_TO_REACTION.get(messageReaction.emoji.name);
+	if (roleId === undefined) return null;
 
-  const message = await messageReaction.message.fetch();
-  if (message.guild === null) return null;
+	const message = await messageReaction.message.fetch();
+	if (message.guild === null) return null;
 
-  const guild = await message.guild.fetch();
-  const role = (await guild.roles.fetch()).get(roleId);
-  if (role === undefined) return null;
-  user = await user.fetch();
+	const guild = await message.guild.fetch();
+	const role = (await guild.roles.fetch()).get(roleId);
+	if (role === undefined) return null;
+	user = await user.fetch();
 
-  return [guild, user.id, role];
+	return [guild, user.id, role];
 };
 
 /** Adds role to user from reaction added to roles message
@@ -303,13 +301,13 @@ const getGuildUserIdAndRole = async (
  * @param user User who added reaction
  */
 export const addRoleOnReactionAdded = async (
-  messageReaction: MessageReaction | PartialMessageReaction,
-  user: User | PartialUser
+	messageReaction: MessageReaction | PartialMessageReaction,
+	user: User | PartialUser
 ) => {
-  const result = await getGuildUserIdAndRole(messageReaction, user);
-  if (result === null) return;
-  const [guild, userId, role] = result;
-  guild.members.addRole({ user: userId, role: role });
+	const result = await getGuildUserIdAndRole(messageReaction, user);
+	if (result === null) return;
+	const [guild, userId, role] = result;
+	guild.members.addRole({ user: userId, role: role });
 };
 
 /** Removes role from reaction removed to roles message
@@ -317,11 +315,11 @@ export const addRoleOnReactionAdded = async (
  * @param user User who removed reaction
  */
 export const removeRoleOnReactionRemoved = async (
-  messageReaction: MessageReaction | PartialMessageReaction,
-  user: User | PartialUser
+	messageReaction: MessageReaction | PartialMessageReaction,
+	user: User | PartialUser
 ) => {
-  const result = await getGuildUserIdAndRole(messageReaction, user);
-  if (result === null) return;
-  const [guild, userId, role] = result;
-  guild.members.removeRole({ user: userId, role: role });
+	const result = await getGuildUserIdAndRole(messageReaction, user);
+	if (result === null) return;
+	const [guild, userId, role] = result;
+	guild.members.removeRole({ user: userId, role: role });
 };

@@ -8,12 +8,12 @@ import isAbleToEdit from '../utils/isAbleToEdit.js';
  * @param interaction object with all information about used command and user
  */
 export const sendWelcomeMessage = async (member: GuildMember) => {
-  const config = await ConfigModel.findOne();
-  if (config) {
-    member.send(config.WELCOME_MESSAGE as string);
-  } else {
-    member.send('Unable to find welcome message in config. Please contact discord bot dev at KSI');
-  }
+	const config = await ConfigModel.findOne();
+	if (config) {
+		member.send(config.WELCOME_MESSAGE as string);
+	} else {
+		member.send('Unable to find welcome message in config. Please contact discord bot dev at KSI');
+	}
 };
 
 /**
@@ -31,20 +31,20 @@ export const sendWelcomeMessage = async (member: GuildMember) => {
  * @param interaction object with all information about used command and user
  */
 export const editWelcomeMessage = async (interaction: ChatInputCommandInteraction) => {
-  if (isAbleToEdit(interaction)) {
-    const parsedMessage = (interaction.options.data[0].value as string).replaceAll('\\n', '\n');
-    await ConfigModel.findOneAndUpdate(
-      {},
-      {
-        WELCOME_MESSAGE: parsedMessage
-      }
-    );
-    interaction.reply({
-      content: `New welcome message: \n${parsedMessage}`
-    });
-  } else {
-    return interaction.reply({
-      content: "You don't have permission to edit welcome message"
-    });
-  }
+	if (isAbleToEdit(interaction)) {
+		const parsedMessage = (interaction.options.data[0].value as string).replaceAll('\\n', '\n');
+		await ConfigModel.findOneAndUpdate(
+			{},
+			{
+				WELCOME_MESSAGE: parsedMessage
+			}
+		);
+		interaction.reply({
+			content: `New welcome message: \n${parsedMessage}`
+		});
+	} else {
+		return interaction.reply({
+			content: "You don't have permission to edit welcome message"
+		});
+	}
 };

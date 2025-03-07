@@ -9,22 +9,22 @@ import isAbleToEdit from '../utils/isAbleToEdit.js';
  * @param interaction object which has all information about new member
  */
 export const giveAutorole = async (member: GuildMember) => {
-  const config = await ConfigModel.findOne({});
+	const config = await ConfigModel.findOne({});
 
-  if (config === null || config.IS_AUTOROLE_ENABLED === undefined) {
-    const dmChannel = member.dmChannel ?? (await member.createDM());
-    await dmChannel.send(
-      `Cześć nie udało Ci się nadać roli automatycznie, ponieważ wystąpił błąd. Skontaktuj się z administracją serwera i podaj im ten komunikat: ${codeBlock(
-        'Unable to fetch data from monogo'
-      )}`
-    );
-    return;
-  }
+	if (config === null || config.IS_AUTOROLE_ENABLED === undefined) {
+		const dmChannel = member.dmChannel ?? (await member.createDM());
+		await dmChannel.send(
+			`Cześć nie udało Ci się nadać roli automatycznie, ponieważ wystąpił błąd. Skontaktuj się z administracją serwera i podaj im ten komunikat: ${codeBlock(
+				'Unable to fetch data from monogo'
+			)}`
+		);
+		return;
+	}
 
-  if (config.IS_AUTOROLE_ENABLED === false) return;
-  const role = await member.guild.roles.fetch(AUTOROLE_ID);
-  if (role === null) return;
-  member.roles.add(role);
+	if (config.IS_AUTOROLE_ENABLED === false) return;
+	const role = await member.guild.roles.fetch(AUTOROLE_ID);
+	if (role === null) return;
+	member.roles.add(role);
 };
 
 /**
@@ -33,26 +33,26 @@ export const giveAutorole = async (member: GuildMember) => {
  * @returns Interaction replay
  */
 export const setAutoroleEnabled = async (interaction: ChatInputCommandInteraction) => {
-  setTimeout(() => interaction.deleteReply(), 10000);
+	setTimeout(() => interaction.deleteReply(), 10000);
 
-  if (isAbleToEdit(interaction)) {
-    const autoroleEnabled = interaction.options.data[0].value as boolean;
-    const config = await ConfigModel.findOne({});
+	if (isAbleToEdit(interaction)) {
+		const autoroleEnabled = interaction.options.data[0].value as boolean;
+		const config = await ConfigModel.findOne({});
 
-    if (config === null || config.IS_AUTOROLE_ENABLED === undefined) {
-      return interaction.reply({
-        content: 'Unable to read config from MongoDB'
-      });
-    }
-    config.IS_AUTOROLE_ENABLED = autoroleEnabled;
-    config.save();
+		if (config === null || config.IS_AUTOROLE_ENABLED === undefined) {
+			return interaction.reply({
+				content: 'Unable to read config from MongoDB'
+			});
+		}
+		config.IS_AUTOROLE_ENABLED = autoroleEnabled;
+		config.save();
 
-    return interaction.reply({
-      content: `Successfully ${autoroleEnabled ? 'enabled' : 'disabled'} autorole`
-    });
-  } else {
-    return interaction.reply({
-      content: "You don't have permission to enable or disable autorole"
-    });
-  }
+		return interaction.reply({
+			content: `Successfully ${autoroleEnabled ? 'enabled' : 'disabled'} autorole`
+		});
+	} else {
+		return interaction.reply({
+			content: "You don't have permission to enable or disable autorole"
+		});
+	}
 };

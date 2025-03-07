@@ -1,31 +1,30 @@
 {
 	"name": "ksicius",
 	"version": "1.0.0",
-	"main": "index.js",
+	"main": "dist/index.js",
 	"license": "MIT",
 	"scripts": {
-		"start": "node --loader ts-node/esm src/index.ts",
-		"lint": "eslint src",
+		"start": "node .",
 		"build": "tsc --project tsconfig.json",
-		"docs": "typedoc --out docs --entryPointStrategy expand src"
+		"docs": "typedoc --out docs --entryPointStrategy expand src",
+		"lint": "eslint src",
+		"clear": "rm -rf dist"
 	},
 	"dependencies": {
-		"discord.js": "^14.6.0",
-		"dotenv": "^16.4.5",
-		"mongoose": "^6.7.3"
+		"discord.js": "^14.18.0",
+		"dotenv": "^16.4.7",
+		"mongoose": "^8.12.1"
 	},
-	"type": "module",
 	"devDependencies": {
-		"@trivago/prettier-plugin-sort-imports": "^4.0.0",
-		"@types/node": "^16.11.3",
-		"@typescript-eslint/eslint-plugin": "^5.44.0",
-		"@typescript-eslint/parser": "^5.44.0",
-		"eslint": "^8.28.0",
-		"eslint-plugin-prettier": "^4.2.1",
-		"prettier": "^2.7.1",
-		"ts-node": "^10.9.1",
-		"typedoc": "^0.23.23",
-		"typescript": "^4.9.3"
+		"@trivago/prettier-plugin-sort-imports": "^5.2.2",
+		"@types/node": "^22.13.9",
+		"@typescript-eslint/eslint-plugin": "^8.26.0",
+		"@typescript-eslint/parser": "^8.26.0",
+		"eslint": "^9.22.0",
+		"eslint-plugin-prettier": "^5.2.3",
+		"prettier": "^3.5.3",
+		"typedoc": "^0.27.9",
+		"typescript": "^5.8.2"
 	},
 	"engines": {
 		"node": ">=16.6.0",
