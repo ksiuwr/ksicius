@@ -10,7 +10,7 @@ import {
 } from 'discord.js';
 import * as path from 'path';
 
-import { CLIENT_ID, TOKEN } from './config';
+import { CLIENT_ID, GUILD_ID, TOKEN } from './config';
 import { BotEvent, SlashCommand } from './types';
 import { forEeachJs } from './utils/dynamicImport';
 import { isBotEvent, isSlashCommand } from './utils/typeGuards';
@@ -57,14 +57,14 @@ const uploadSlashCommands = async (client: Client) => {
 		slashCommand => slashCommand.command
 	);
 
-	console.log('Uploading shash commands');
+	console.log('Deploying slash commands');
 
 	try {
-		await rest.put(Routes.applicationCommands(CLIENT_ID), {
+		await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
 			body: commands.map(command => command.toJSON())
 		});
 
-		console.log(`Successfully loaded slash command(s)`);
+		console.log(`Successfully deployed slash command(s)`);
 	} catch (ex) {
 		console.error(ex);
 	}
