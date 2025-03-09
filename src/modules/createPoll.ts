@@ -1,33 +1,52 @@
 import {
-	APIEmbedField,
 	ChatInputCommandInteraction,
 	DiscordAPIError,
-	EmbedBuilder,
+	PollLayoutType,
 	TextChannel
 } from 'discord.js';
 
+import { zip } from '../utils/array';
+
+const hearts = ['❤️', '💚', '💙', '🧡', '💜', '🩷', '💛', '🤍', '🖤'];
 const numbers = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 
 export const createPoll = async (interaction: ChatInputCommandInteraction) => {
-	const title = interaction.options.data[0].value as string;
-	const optionsString = interaction.options.data[1].value as string;
-	const optionsList = optionsString.split(';').filter(opt => opt && opt.trim().length > 0);
-	const numbersList = numbers.slice(0, optionsList.length);
+	const title = interaction.options.getString('title') ?? 'Poll';
+	const optionsString = interaction.options.getString('options') ?? 'Option 1;Option 2;Option 3';
+	const duration = interaction.options.getNumber('duration') ?? 12;
+	const allowMultiselect = interaction.options.getBoolean('allow_multiselect') ?? true;
+	const useNumbers = interaction.options.getBoolean('use_numbers') ?? false;
 
-	const embed = createPollEmbed(title, interaction.user.username, optionsList, numbersList);
+	const optionsList = optionsString.split(';').filter(opt => opt && opt.trim().length > 0);
 
 	const channel = interaction.channel;
 	if (channel === null || !(channel instanceof TextChannel)) {
 		return;
 	}
 
-	try {
-		const message = await channel.send({ embeds: [embed] });
-		numbersList.forEach(async emoji => {
-			await message.react(emoji);
-		});
+	if (optionsList.length === 0) {
+		await interaction.reply({ content: 'Cannot create poll with empty options', ephemeral: true });
+		return;
+	}
 
-		await interaction.reply({ content: 'Pool created', ephemeral: true });
+	try {
+		await channel.send({
+			poll: {
+				allowMultiselect: allowMultiselect,
+				question: {
+					text: title
+				},
+				answers: zip(optionsList, useNumbers ? numbers : hearts).map(element => {
+					return {
+						text: element.first,
+						emoji: element.second
+					};
+				}),
+				duration: duration,
+				layoutType: PollLayoutType.Default
+			}
+		});
+		await interaction.reply({ content: 'Poll created', ephemeral: true });
 	} catch (err) {
 		if (err instanceof DiscordAPIError) {
 			interaction.reply({
@@ -35,31 +54,4 @@ export const createPoll = async (interaction: ChatInputCommandInteraction) => {
 			});
 		}
 	}
-};
-
-const createPollEmbed = (
-	title: string,
-	author: string,
-	options: string[],
-	emojiNumbers: string[]
-) => {
-	const fields = [];
-	for (let i = 0; i < options.length; i++) {
-		const option = options[i];
-		const emoji = emojiNumbers[i];
-		const field: APIEmbedField = {
-			name: `Option ${emoji}`,
-			value: option,
-			inline: true
-		};
-		fields.push(field);
-	}
-
-	const embed = new EmbedBuilder()
-		.setTitle(title)
-		.addFields(fields)
-		.setColor('Gold')
-		.setFooter({ text: author });
-
-	return embed;
 };
